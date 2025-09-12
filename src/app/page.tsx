@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Bus, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import {
   AlertDialog,
@@ -41,7 +41,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
+import { GgkLogoIcon } from "@/components/ggk-logo-icon";
 
 
 const formSchema = z.object({
@@ -121,14 +122,14 @@ export default function LoginPage() {
   return (
     <main className="flex min-h-full flex-col items-center justify-center p-6">
       <div className="flex flex-col items-center text-center mb-8">
-        <div className="bg-primary rounded-full p-4 mb-4">
-          <Bus className="h-10 w-10 text-primary-foreground" />
+        <div className="bg-accent rounded-full p-4 mb-4">
+          <GgkLogoIcon className="h-10 w-10 text-primary" />
         </div>
-        <h1 className="text-3xl font-bold text-gray-800 font-headline">
-          Buurtbus Connect
+        <h1 className="text-5xl font-bold text-primary font-headline tracking-tighter">
+          GGK
         </h1>
-        <p className="text-muted-foreground mt-2">
-          De buurtbus, altijd dichtbij.
+        <p className="text-muted-foreground mt-2 font-semibold">
+          gauw, geel en knus!
         </p>
       </div>
       <Card className="w-full max-w-sm">
@@ -166,8 +167,7 @@ export default function LoginPage() {
                            <Button 
                               type="button"
                               variant="link" 
-                              className="text-xs p-0 h-auto text-primary/80 font-semibold hover:text-primary-foreground"
-                              onClick={() => setResetEmail(form.getValues("email"))}
+                              className="text-xs p-0 h-auto text-primary/80 font-semibold hover:text-primary"
                             >
                               Wachtwoord vergeten?
                            </Button>
@@ -210,7 +210,7 @@ export default function LoginPage() {
         </Form>
         <div className="px-6 pb-6 text-center text-sm">
           Nog geen account?{" "}
-          <Link href="/register" className="underline text-primary-foreground/80 font-semibold hover:text-primary-foreground">
+          <Link href="/register" className="underline text-primary/90 font-semibold hover:text-primary">
             Registreer hier
           </Link>
         </div>

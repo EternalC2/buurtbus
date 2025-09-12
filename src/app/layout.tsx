@@ -7,8 +7,8 @@ import './globals.css';
 import { useEffect, useState } from 'react';
 
 // export const metadata: Metadata = {
-//   title: 'Buurtbus Connect',
-//   description: 'De buurtbus, altijd dichtbij.',
+//   title: 'GGK',
+//   description: 'gauw, geel en knus!',
 // };
 
 export default function RootLayout({
@@ -25,8 +25,8 @@ export default function RootLayout({
   return (
     <html lang="nl">
       <head>
-        <title>Buurtbus Connect</title>
-        <meta name="description" content="De buurtbus, altijd dichtbij." />
+        <title>GGK</title>
+        <meta name="description" content="gauw, geel en knus!" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap" rel="stylesheet" />

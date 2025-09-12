@@ -11,6 +11,7 @@ import { Bus, User, Clock, Loader, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { estimateArrivalTime, EstimatedArrivalTimeInput } from "@/ai/ai-estimated-arrival-time";
+import { GgkLogoIcon } from "@/components/ggk-logo-icon";
 
 type RequestState = "idle" | "requesting" | "waiting";
 
@@ -132,11 +133,12 @@ export default function HomePage() {
           <button
             onClick={handleRequestRide}
             className={cn(
-                "relative flex flex-col items-center justify-center w-48 h-48 rounded-full bg-primary text-primary-foreground shadow-lg transition-transform duration-300 hover:scale-105 active:scale-95 animate-pulse-ring"
+                "relative flex flex-col items-center justify-center w-48 h-48 rounded-full bg-accent text-primary shadow-lg transition-transform duration-300 hover:scale-105 active:scale-95 animate-pulse-ring"
             )}
+            style={{ animation: 'pulse-ring 2.5s infinite cubic-bezier(0.215, 0.61, 0.355, 1)', '--tw-ring-color': 'hsl(var(--accent))' } as React.CSSProperties}
             aria-label="Roep de bus op"
           >
-            <Bus className="h-16 w-16 mb-2" />
+            <GgkLogoIcon className="h-20 w-20 mb-1" />
             <span className="font-bold text-lg">Roep de bus op</span>
           </button>
         </>
@@ -154,13 +156,13 @@ export default function HomePage() {
 
       {state === "waiting" && (
         <div className="flex flex-col items-center gap-6 w-full animate-in fade-in-50 duration-500">
-          <h2 className="text-2xl font-bold text-accent-foreground font-headline">
+          <h2 className="text-2xl font-bold text-primary font-headline">
             Chauffeur is onderweg!
           </h2>
           <Card className="w-full max-w-sm text-left">
             <CardHeader>
               <CardTitle className="flex items-center gap-3">
-                <Bus className="h-6 w-6 text-accent-foreground" />
+                <GgkLogoIcon className="h-6 w-6 text-primary" />
                 <span>Uw Rit</span>
               </CardTitle>
             </CardHeader>

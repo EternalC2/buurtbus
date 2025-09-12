@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import { ChevronRight, User, Bell, FileText, Shield } from "lucide-react";
+import { ChevronRight, User, Bell, FileText, Shield, LogOut } from "lucide-react";
 import Link from 'next/link';
 import {
   AlertDialog,
@@ -27,7 +27,7 @@ export default function SettingsPage() {
       <div className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>Account &amp; Juridisch</CardTitle>
+            <CardTitle>Account & Juridisch</CardTitle>
             <CardDescription>Beheer uw account en bekijk ons beleid.</CardDescription>
           </CardHeader>
           <CardContent>
@@ -55,11 +55,11 @@ export default function SettingsPage() {
                   <AlertDialogTitle>Algemene Voorwaarden</AlertDialogTitle>
                   <AlertDialogDescription className="max-h-[60vh] overflow-y-auto text-left">
                     <p className="mb-2">Laatst bijgewerkt: [Datum]</p>
-                    <p className="mb-4">Welkom bij Buurtbus Connect. Lees deze voorwaarden zorgvuldig door voordat u onze service gebruikt.</p>
+                    <p className="mb-4">Welkom bij GGK. Lees deze voorwaarden zorgvuldig door voordat u onze service gebruikt.</p>
                     <h3 className="font-bold mb-2">1. Acceptatie van Voorwaarden</h3>
-                    <p className="mb-4">Door gebruik te maken van de Buurtbus Connect app, gaat u akkoord met deze algemene voorwaarden. Als u niet akkoord gaat, dient u de app niet te gebruiken.</p>
+                    <p className="mb-4">Door gebruik te maken van de GGK app, gaat u akkoord met deze algemene voorwaarden. Als u niet akkoord gaat, dient u de app niet te gebruiken.</p>
                     <h3 className="font-bold mb-2">2. De Service</h3>
-                    <p className="mb-4">Buurtbus Connect is een platform dat reizigers in contact brengt met vrijwillige chauffeurs van de buurtbus. De service is afhankelijk van de beschikbaarheid van vrijwilligers en er kunnen geen garanties worden gegeven over de beschikbaarheid of wachttijden.</p>
+                    <p className="mb-4">GGK is een platform dat reizigers in contact brengt met vrijwillige chauffeurs. De service is afhankelijk van de beschikbaarheid van vrijwilligers en er kunnen geen garanties worden gegeven over de beschikbaarheid of wachttijden.</p>
                     <h3 className="font-bold mb-2">3. Gebruikersaccount</h3>
                     <p className="mb-4">U bent verantwoordelijk voor het geheimhouden van uw accountgegevens en voor alle activiteiten die onder uw account plaatsvinden. U dient ons onmiddellijk op de hoogte te stellen van elk ongeoorloofd gebruik van uw account.</p>
                     <h3 className="font-bold mb-2">4. Beperking van Aansprakelijkheid</h3>
@@ -126,7 +126,10 @@ export default function SettingsPage() {
         </Card>
 
         <Button variant="outline" className="w-full" asChild>
-            <Link href="/">Uitloggen</Link>
+            <Link href="/">
+              <LogOut className="mr-2 h-4 w-4" />
+              Uitloggen
+            </Link>
         </Button>
       </div>
     </div>

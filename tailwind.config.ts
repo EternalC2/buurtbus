@@ -80,15 +80,15 @@ export default {
         'pulse-ring': {
           '0%': {
             transform: 'scale(0.8)',
-            boxShadow: '0 0 0 0 hsl(var(--primary) / 0.7)',
+            boxShadow: '0 0 0 0 hsl(var(--accent) / 0.7)',
           },
           '70%': {
             transform: 'scale(1)',
-            boxShadow: '0 0 0 30px hsl(var(--primary) / 0)',
+            boxShadow: '0 0 0 30px hsl(var(--accent) / 0)',
           },
           '100%': {
             transform: 'scale(0.8)',
-            boxShadow: '0 0 0 0 hsl(var(--primary) / 0)',
+            boxShadow: '0 0 0 0 hsl(var(--accent) / 0)',
           },
         },
       },

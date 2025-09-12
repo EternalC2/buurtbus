@@ -29,6 +29,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
+import { GgkLogoIcon } from "@/components/ggk-logo-icon";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Naam moet minimaal 2 karakters lang zijn." }),
@@ -107,6 +108,17 @@ export default function RegisterPage() {
 
   return (
     <main className="flex min-h-full flex-col items-center justify-center p-6">
+      <div className="flex flex-col items-center text-center mb-8">
+        <div className="bg-accent rounded-full p-4 mb-4">
+          <GgkLogoIcon className="h-10 w-10 text-primary" />
+        </div>
+        <h1 className="text-5xl font-bold text-primary font-headline tracking-tighter">
+          GGK
+        </h1>
+        <p className="text-muted-foreground mt-2 font-semibold">
+          gauw, geel en knus!
+        </p>
+      </div>
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle className="text-2xl">Account aanmaken</CardTitle>
@@ -180,7 +192,7 @@ export default function RegisterPage() {
         </Form>
         <div className="p-6 pt-0 text-center text-sm">
           Al een account?{" "}
-          <Link href="/" className="underline text-primary-foreground/80 font-semibold hover:text-primary-foreground">
+          <Link href="/" className="underline text-primary/90 font-semibold hover:text-primary">
             Log hier in
           </Link>
         </div>
