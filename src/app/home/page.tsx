@@ -5,31 +5,47 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bus, User, Clock, Loader, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { estimateArrivalTime, EstimatedArrivalTimeInput } from "@/ai/ai-estimated-arrival-time";
 
 type RequestState = "idle" | "requesting" | "waiting";
 
 export default function HomePage() {
   const [state, setState] = useState<RequestState>("idle");
-  const [eta, setEta] = useState<number | null>(null);
+  const [eta, setEta] = useState<string | null>(null);
+  const [confidence, setConfidence] = useState<number | null>(null);
 
-  useEffect(() => {
-    if (state === "requesting") {
-      const timer = setTimeout(() => {
-        // Simulate AI ETA calculation only on the client
-        setEta(Math.floor(Math.random() * 10) + 5);
-        setState("waiting");
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [state]);
-
-  const handleRequest = () => {
+  const handleRequest = async () => {
     setState("requesting");
+    try {
+      // Hardcoded values for demonstration
+      const input: EstimatedArrivalTimeInput = {
+        userLocation: "52.370216, 4.895168", // Amsterdam Centraal
+        busRoute: "Route 347",
+        timeOfRequest: new Date().toISOString(),
+        historicalData: "Average speed 30km/h, common 5-10 min delay during peak hours.",
+      };
+      const result = await estimateArrivalTime(input);
+      const arrivalTime = new Date(result.estimatedArrivalTime);
+      const now = new Date();
+      const diffMinutes = Math.round((arrivalTime.getTime() - now.getTime()) / 60000);
+      
+      setEta(`${diffMinutes} minuten`);
+      setConfidence(result.confidence);
+      setState("waiting");
+    } catch (error) {
+      console.error("Error estimating arrival time:", error);
+      // Fallback to random ETA on error
+      const randomEta = Math.floor(Math.random() * 10) + 5;
+      setEta(`~ ${randomEta} minuten`);
+      setConfidence(null);
+      setState("waiting");
+    }
   };
 
   const handleCancel = () => {
     setState("idle");
     setEta(null);
+    setConfidence(null);
   };
 
   return (
@@ -59,7 +75,7 @@ export default function HomePage() {
           <h2 className="text-xl font-semibold font-headline">
             Verzoek wordt verstuurd...
           </h2>
-          <p className="text-muted-foreground">Een moment geduld.</p>
+          <p className="text-muted-foreground">Een moment geduld, we berekenen uw wachttijd.</p>
         </div>
       )}
 
@@ -80,7 +96,12 @@ export default function HomePage() {
                 <Clock className="h-5 w-5 text-muted-foreground" />
                 <div>
                   <p className="text-sm text-muted-foreground">Verwachte aankomsttijd</p>
-                  <p className="font-semibold">{eta !== null ? `~ ${eta} minuten` : '...'}</p>
+                  <p className="font-semibold">{eta || '...'}</p>
+                   {confidence !== null && (
+                    <p className="text-xs text-muted-foreground">
+                      Betrouwbaarheid: {Math.round(confidence * 100)}%
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex items-center gap-3">
