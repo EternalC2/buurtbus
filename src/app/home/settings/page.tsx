@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import { ChevronRight, User, Bell, FileText, Shield, LogOut } from "lucide-react";
+import { ChevronRight, User, Bell, FileText, Shield, LogOut, CreditCard } from "lucide-react";
 import Link from 'next/link';
 import {
   AlertDialog,
@@ -40,6 +40,15 @@ export default function SettingsPage() {
             </button>
             <Separator className="my-2" />
             
+            <Link href="/home/buurtbus-pas" className="flex w-full items-center justify-between rounded-md p-3 hover:bg-secondary">
+              <div className="flex items-center gap-3">
+                <CreditCard className="h-5 w-5 text-muted-foreground" />
+                <span>Buurtbus Pas</span>
+              </div>
+              <ChevronRight className="h-5 w-5 text-muted-foreground" />
+            </Link>
+            <Separator className="my-2" />
+
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <button className="flex w-full items-center justify-between rounded-md p-3 hover:bg-secondary">
