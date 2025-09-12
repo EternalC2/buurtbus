@@ -1,6 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,49 +17,160 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { ArrowLeft } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
+import { useState } from "react";
+
+const formSchema = z.object({
+  name: z.string().min(2, { message: "Naam moet minimaal 2 karakters lang zijn." }),
+  email: z.string().email({ message: "Voer een geldig e-mailadres in." }),
+  phone: z.string().optional(),
+  password: z.string().min(6, { message: "Wachtwoord moet minimaal 6 karakters lang zijn." }),
+});
 
 export default function RegisterPage() {
+  const router = useRouter();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      password: "",
+    },
+  });
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsLoading(true);
+    const auth = getAuth();
+    try {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        values.email,
+        values.password
+      );
+      const user = userCredential.user;
+
+      // Store additional user info in Firestore
+      await setDoc(doc(db, "users", user.uid), {
+        name: values.name,
+        email: values.email,
+        phone: values.phone || "",
+        createdAt: new Date(),
+      });
+
+      toast({
+        title: "Account aangemaakt!",
+        description: "U wordt nu doorgestuurd naar de homepagina.",
+      });
+      router.push("/home");
+    } catch (error: any) {
+      console.error("Error creating user:", error);
+      let errorMessage = "Er is een onbekende fout opgetreden.";
+      if (error.code === 'auth/email-already-in-use') {
+        errorMessage = "Dit e-mailadres is al in gebruik.";
+      }
+      toast({
+        variant: "destructive",
+        title: "Registratie mislukt",
+        description: errorMessage,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   return (
     <main className="flex min-h-full flex-col items-center justify-center p-6">
-       <Card className="w-full max-w-sm">
+      <Card className="w-full max-w-sm">
         <CardHeader>
-           <CardTitle className="text-2xl">Account aanmaken</CardTitle>
+          <CardTitle className="text-2xl">Account aanmaken</CardTitle>
           <CardDescription>
             Vul uw gegevens in om een nieuw account te registreren.
           </CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-4">
-          <div className="grid gap-2">
-            <Label htmlFor="name">Volledige naam</Label>
-            <Input id="name" placeholder="Jan Jansen" required />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="email">E-mailadres</Label>
-            <Input id="email" type="email" placeholder="naam@voorbeeld.com" required />
-          </div>
-           <div className="grid gap-2">
-            <Label htmlFor="phone">Telefoonnummer (optioneel)</Label>
-            <Input id="phone" type="tel" placeholder="0612345678" />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="password">Wachtwoord</Label>
-            <Input id="password" type="password" required />
-          </div>
-        </CardContent>
-        <CardFooter className="flex flex-col gap-4">
-          <Button className="w-full" asChild>
-            <Link href="/home">Registreren</Link>
-          </Button>
-          <div className="text-center text-sm">
-            Al een account?{" "}
-            <Link href="/" className="underline text-primary-foreground/80 font-semibold hover:text-primary-foreground">
-              Log hier in
-            </Link>
-          </div>
-        </CardFooter>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <CardContent className="grid gap-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Volledige naam</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Jan Jansen" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>E-mailadres</FormLabel>
+                    <FormControl>
+                      <Input type="email" placeholder="naam@voorbeeld.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Telefoonnummer (optioneel)</FormLabel>
+                    <FormControl>
+                      <Input type="tel" placeholder="0612345678" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Wachtwoord</FormLabel>
+                    <FormControl>
+                      <Input type="password" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+            <CardFooter className="flex flex-col gap-4">
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Registreren
+              </Button>
+            </CardFooter>
+          </form>
+        </Form>
+        <div className="p-6 pt-0 text-center text-sm">
+          Al een account?{" "}
+          <Link href="/" className="underline text-primary-foreground/80 font-semibold hover:text-primary-foreground">
+            Log hier in
+          </Link>
+        </div>
       </Card>
     </main>
   );
