@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, Bus } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import {
   AlertDialog,
@@ -42,7 +42,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { GgkLogoIcon } from "@/components/ggk-logo-icon";
 
 
 const formSchema = z.object({
@@ -123,13 +122,13 @@ export default function LoginPage() {
     <main className="flex min-h-full flex-col items-center justify-center p-6">
       <div className="flex flex-col items-center text-center mb-8">
         <div className="bg-accent rounded-full p-4 mb-4">
-          <GgkLogoIcon className="h-10 w-10 text-primary" />
+          <Bus className="h-10 w-10 text-primary" />
         </div>
         <h1 className="text-5xl font-bold text-primary font-headline tracking-tighter">
-          GGK
+          Buurtbus
         </h1>
         <p className="text-muted-foreground mt-2 font-semibold">
-          gauw, geel en knus!
+          Eenvoudig, snel en betrouwbaar.
         </p>
       </div>
       <Card className="w-full max-w-sm">

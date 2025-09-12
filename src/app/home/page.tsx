@@ -11,7 +11,6 @@ import { Bus, User, Clock, Loader, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { estimateArrivalTime, EstimatedArrivalTimeInput } from "@/ai/ai-estimated-arrival-time";
-import { GgkLogoIcon } from "@/components/ggk-logo-icon";
 
 type RequestState = "idle" | "requesting" | "waiting";
 
@@ -138,7 +137,7 @@ export default function HomePage() {
             style={{ animation: 'pulse-ring 2.5s infinite cubic-bezier(0.215, 0.61, 0.355, 1)', '--tw-ring-color': 'hsl(var(--accent))' } as React.CSSProperties}
             aria-label="Roep de bus op"
           >
-            <GgkLogoIcon className="h-20 w-20 mb-1" />
+            <Bus className="h-20 w-20 mb-1" />
             <span className="font-bold text-lg">Roep de bus op</span>
           </button>
         </>
@@ -162,7 +161,7 @@ export default function HomePage() {
           <Card className="w-full max-w-sm text-left">
             <CardHeader>
               <CardTitle className="flex items-center gap-3">
-                <GgkLogoIcon className="h-6 w-6 text-primary" />
+                <Bus className="h-6 w-6 text-primary" />
                 <span>Uw Rit</span>
               </CardTitle>
             </CardHeader>
