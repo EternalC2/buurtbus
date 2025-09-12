@@ -127,8 +127,8 @@ export default function LoginPage() {
         <h1 className="text-5xl font-bold text-primary font-headline tracking-tighter">
           Buurtbus
         </h1>
-        <p className="text-muted-foreground mt-2 font-semibold">
-          Eenvoudig, snel en betrouwbaar.
+        <p className="text-muted-foreground mt-2">
+          gauw, geel en knus!
         </p>
       </div>
       <Card className="w-full max-w-sm">

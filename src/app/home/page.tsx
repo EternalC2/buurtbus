@@ -124,23 +124,31 @@ export default function HomePage() {
   return (
     <div className="flex h-full flex-col">
       {state === "idle" && (
-        <div className="flex h-full flex-col justify-between p-6">
-           <div className="flex flex-col items-center text-center pt-16">
-            <div className="bg-accent rounded-full p-4 mb-4">
-              <Bus className="h-10 w-10 text-primary" />
+        <div className="flex flex-col items-center justify-center h-full p-4">
+            <div className="flex flex-col items-center text-center mb-8">
+                <div className="bg-accent rounded-full p-4 mb-4">
+                  <Bus className="h-10 w-10 text-primary" />
+                </div>
+                <h1 className="text-5xl font-bold text-primary font-headline tracking-tighter">
+                  Buurtbus
+                </h1>
+                <p className="text-muted-foreground mt-2">
+                  gauw, geel en knus!
+                </p>
             </div>
-            <h1 className="text-5xl font-bold text-primary font-headline tracking-tighter">
-              Buurtbus
-            </h1>
-            <p className="text-muted-foreground mt-2 font-semibold">
-              Eenvoudig, snel en betrouwbaar.
-            </p>
-          </div>
-          <div className="pb-4">
-            <Button size="lg" className="w-full" onClick={handleRequestRide}>
-              Roep de buurtbus op
-            </Button>
-          </div>
+            <Card className="w-full max-w-sm">
+                <CardHeader>
+                    <CardTitle>Waar wilt u heen?</CardTitle>
+                    <CardDescription>
+                        De buurtbus haalt u op vanaf uw huidige locatie.
+                    </CardDescription>
+                </CardHeader>
+                <CardFooter>
+                    <Button size="lg" className="w-full" onClick={handleRequestRide}>
+                        Roep de buurtbus op
+                    </Button>
+                </CardFooter>
+            </Card>
         </div>
       )}
 
