@@ -12,33 +12,30 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Bus } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
-export default function LoginPage() {
+export default function RegisterPage() {
   return (
     <main className="flex min-h-full flex-col items-center justify-center p-6">
-      <div className="flex flex-col items-center text-center mb-8">
-        <div className="bg-primary rounded-full p-4 mb-4">
-          <Bus className="h-10 w-10 text-primary-foreground" />
-        </div>
-        <h1 className="text-3xl font-bold text-gray-800 font-headline">
-          Buurtbus Connect
-        </h1>
-        <p className="text-muted-foreground mt-2">
-          De buurtbus, altijd dichtbij.
-        </p>
-      </div>
-      <Card className="w-full max-w-sm">
+       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl">Inloggen</CardTitle>
+           <CardTitle className="text-2xl">Account aanmaken</CardTitle>
           <CardDescription>
-            Voer uw e-mailadres en wachtwoord in om door te gaan.
+            Vul uw gegevens in om een nieuw account te registreren.
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
           <div className="grid gap-2">
+            <Label htmlFor="name">Volledige naam</Label>
+            <Input id="name" placeholder="Jan Jansen" required />
+          </div>
+          <div className="grid gap-2">
             <Label htmlFor="email">E-mailadres</Label>
             <Input id="email" type="email" placeholder="naam@voorbeeld.com" required />
+          </div>
+           <div className="grid gap-2">
+            <Label htmlFor="phone">Telefoonnummer (optioneel)</Label>
+            <Input id="phone" type="tel" placeholder="0612345678" />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="password">Wachtwoord</Label>
@@ -47,12 +44,12 @@ export default function LoginPage() {
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
           <Button className="w-full" asChild>
-            <Link href="/home">Inloggen</Link>
+            <Link href="/home">Registreren</Link>
           </Button>
           <div className="text-center text-sm">
-            Nog geen account?{" "}
-            <Link href="/register" className="underline text-primary-foreground/80 font-semibold hover:text-primary-foreground">
-              Registreer hier
+            Al een account?{" "}
+            <Link href="/" className="underline text-primary-foreground/80 font-semibold hover:text-primary-foreground">
+              Log hier in
             </Link>
           </div>
         </CardFooter>

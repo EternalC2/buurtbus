@@ -1,0 +1,14 @@
+import BottomNav from '@/components/bottom-nav';
+
+export default function HomeLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <>
+      <main className="flex-1 overflow-y-auto pb-24">{children}</main>
+      <BottomNav />
+    </>
+  );
+}
