@@ -7,10 +7,11 @@ import { db, auth } from "@/lib/firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Bus, User, Clock, Loader, X, MapPin } from "lucide-react";
+import { Bus, User, Clock, Loader, X, MapPin, Info, CreditCard, Ticket } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { estimateArrivalTime, EstimatedArrivalTimeInput } from "@/ai/ai-estimated-arrival-time";
+import { Separator } from "@/components/ui/separator";
 
 type RequestState = "idle" | "requesting" | "waiting";
 
@@ -124,7 +125,7 @@ export default function HomePage() {
   return (
     <div className="flex h-full flex-col">
       {state === "idle" && (
-        <div className="flex flex-col items-center justify-center h-full p-4">
+        <div className="flex flex-col items-center justify-center p-4">
             <div className="flex flex-col items-center text-center mb-8">
                 <div className="bg-accent rounded-full p-4 mb-4">
                   <Bus className="h-10 w-10 text-primary" />
@@ -136,7 +137,7 @@ export default function HomePage() {
                   gauw, geel en knus!
                 </p>
             </div>
-            <Card className="w-full max-w-sm">
+            <Card className="w-full max-w-sm mb-6">
                 <CardHeader>
                     <CardTitle>Waar wilt u heen?</CardTitle>
                     <CardDescription>
@@ -148,6 +149,30 @@ export default function HomePage() {
                         Roep de buurtbus op
                     </Button>
                 </CardFooter>
+            </Card>
+
+            <Card className="w-full max-w-sm">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-3 text-xl">
+                        <Info className="h-6 w-6"/>
+                        Informatie
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4 text-sm">
+                    <div>
+                        <h3 className="font-semibold flex items-center gap-2 mb-2"><Clock className="h-4 w-4"/>Dienstregeling</h3>
+                        <div className="flex justify-between"><span>Maandag t/m zaterdag:</span><span>08:00 - 19:00</span></div>
+                        <div className="flex justify-between"><span>Zondag:</span><span>10:00 - 18:00</span></div>
+                    </div>
+                    <Separator />
+                    <div>
+                        <h3 className="font-semibold flex items-center gap-2 mb-2"><Ticket className="h-4 w-4"/>Vervoersbewijzen</h3>
+                        <p className="text-muted-foreground">Kaartje kopen bij instappen: <span className="font-bold text-foreground">€1,50</span></p>
+                        <p className="text-muted-foreground">Kaartjes zijn 1 uur geldig. (Contant of pin)</p>
+                        <p className="mt-2 font-semibold text-destructive/90">Let op: OV-chipkaart is niet geldig.</p>
+                         <p className="text-muted-foreground">Hiervoor hebben we Buurtbus pasjes.</p>
+                    </div>
+                </CardContent>
             </Card>
         </div>
       )}
