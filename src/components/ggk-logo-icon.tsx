@@ -1,42 +1,14 @@
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 export function GgkLogoIcon({ className }: { className?: string }) {
   return (
-    <svg
-      viewBox="0 0 100 100"
-      xmlns="http://www.w3.org/2000/svg"
+    <Image
+      src="https://media.discordapp.net/attachments/1414576010036379739/1416006402849116160/11zon_cropped.png?ex=68c5463a&is=68c3f4ba&hm=fd70436af7805d1ea09c720575c92a6ec5c4ea774c3e10e99fd6088ae7d73cf3&=&format=webp&quality=lossless&width=554&height=554"
+      alt="GGK Logo"
       className={cn(className)}
-    >
-      <defs>
-        <g id="person-figure">
-          <path d="M -5.5,0 a 5.5,5.5 0 1 1 11,0 a 5.5,5.5 0 1 1 -11,0" />
-          <path d="M -9,-14 a 9,9 0 0 1 18,0 z" />
-        </g>
-      </defs>
-
-      <circle cx="50" cy="50" r="50" fill="white" />
-      <circle cx="50" cy="50" r="21" fill="hsl(var(--accent))" />
-      <circle cx="50" cy="50" r="10.5" fill="white" />
-
-      <g fill="hsl(var(--accent))" transform="translate(50 50)">
-        <use href="#person-figure" transform="rotate(0) translate(0 -35)" />
-        <use href="#person-figure" transform="rotate(22.5) translate(0 -35)" />
-        <use href="#person-figure" transform="rotate(45) translate(0 -35)" />
-        <use href="#person-figure" transform="rotate(67.5) translate(0 -35)" />
-        <use href="#person-figure" transform="rotate(90) translate(0 -35)" />
-        <use href="#person-figure" transform="rotate(112.5) translate(0 -35)" />
-        <use href="#person-figure" transform="rotate(135) translate(0 -35)" />
-        <use href="#person-figure" transform="rotate(202.5) translate(0 -35)" />
-        <use href="#person-figure" transform="rotate(225) translate(0 -35)" />
-        <use href="#person-figure" transform="rotate(247.5) translate(0 -35)" />
-        <use href="#person-figure" transform="rotate(270) translate(0 -35)" />
-        <use href="#person-figure" transform="rotate(292.5) translate(0 -35)" />
-        <use href="#person-figure" transform="rotate(315) translate(0 -35)" />
-        <use href="#person-figure" transform="rotate(337.5) translate(0 -35)" />
-      </g>
-      <g fill="hsl(var(--primary))" transform="translate(50 50)">
-        <use href="#person-figure" transform="rotate(180) translate(0 -35)" />
-      </g>
-    </svg>
+      width={554}
+      height={554}
+    />
   );
 }
