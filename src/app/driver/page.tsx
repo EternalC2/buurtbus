@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Bus, Loader2, SteeringWheel } from "lucide-react";
+import { Loader2, Car } from "lucide-react";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Voer een geldig e-mailadres in." }),
@@ -98,7 +98,7 @@ export default function DriverLoginPage() {
     <main className="flex min-h-full flex-col items-center justify-center p-6">
       <div className="flex flex-col items-center text-center mb-8">
         <div className="bg-primary rounded-full p-4 mb-4">
-          <SteeringWheel className="h-10 w-10 text-primary-foreground" />
+          <Car className="h-10 w-10 text-primary-foreground" />
         </div>
         <h1 className="text-3xl font-bold text-gray-800 font-headline">
           Chauffeurspaneel
