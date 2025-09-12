@@ -58,6 +58,7 @@ export default function LoginPage() {
         description: "U wordt nu doorgestuurd.",
       });
       router.push("/home");
+      router.refresh(); // Force a refresh to ensure navigation happens
     } catch (error: any) {
       console.error("Error signing in:", error);
       let errorMessage = "Er is een onbekende fout opgetreden.";
