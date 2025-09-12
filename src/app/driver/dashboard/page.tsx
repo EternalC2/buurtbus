@@ -175,7 +175,7 @@ export default function DriverDashboardPage() {
                           <div className="flex items-start gap-3 text-sm">
                             <Accessibility className="h-5 w-5 text-primary flex-shrink-0" />
                             <div>
-                              <p className="font-semibold">Passagier is mindervalide</p>
+                              <p className="font-semibold">Passagier heeft ondersteuning nodig</p>
                               {activeRide.beperking && <p className="text-muted-foreground">{activeRide.beperking}</p>}
                             </div>
                           </div>
@@ -222,7 +222,7 @@ export default function DriverDashboardPage() {
                             <div className="flex items-start gap-3 text-sm">
                               <Accessibility className="h-5 w-5 text-primary flex-shrink-0" />
                               <div>
-                                <p className="font-semibold">Passagier is mindervalide</p>
+                                <p className="font-semibold">Passagier heeft ondersteuning nodig</p>
                                 {req.beperking && <p className="text-muted-foreground">{req.beperking}</p>}
                               </div>
                             </div>

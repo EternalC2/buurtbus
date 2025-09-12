@@ -253,7 +253,7 @@ export default function RegisterPage() {
                     </FormControl>
                     <div className="space-y-1 leading-none">
                       <FormLabel>
-                        Ik ben mindervalide
+                        Heb je een beperking of ondersteuningsbehoefte waar wij rekening mee moeten houden?
                       </FormLabel>
                     </div>
                   </FormItem>
@@ -265,7 +265,7 @@ export default function RegisterPage() {
                   name="beperking"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Beschrijf uw beperking (optioneel)</FormLabel>
+                      <FormLabel>Als je ja hebt aangevinkt, kun je hieronder kort aangeven welke ondersteuning of aanpassingen voor jou belangrijk zijn:</FormLabel>
                       <FormControl>
                         <Textarea placeholder="Bijv. rolstoelgebruiker, slechtziend" {...field} />
                       </FormControl>
