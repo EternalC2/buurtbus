@@ -1,13 +1,13 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { db, auth } from "@/lib/firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bus, User, Clock, Loader, X, LocateFixed } from "lucide-react";
+import { Bus, User, Clock, Loader, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { estimateArrivalTime, EstimatedArrivalTimeInput } from "@/ai/ai-estimated-arrival-time";
@@ -92,9 +92,9 @@ export default function HomePage() {
       (error) => {
         console.error("Geolocation error:", error);
         toast({
-          variant: "destructive",
-          title: "Locatiefout",
-          description: "Kon uw locatie niet ophalen. Zorg dat u toestemming heeft gegeven.",
+            variant: "destructive",
+            title: "Locatiefout",
+            description: "Toestemming geweigerd. Controleer de locatie-instellingen van uw browser voor deze site en geef opnieuw toestemming.",
         });
         setState("idle");
       }
