@@ -1,14 +1,20 @@
 import { cn } from "@/lib/utils";
-import Image from "next/image";
 
 export function GgkLogoIcon({ className }: { className?: string }) {
   return (
-    <Image
-      src="https://media.discordapp.net/attachments/1414576010036379739/1416006402849116160/11zon_cropped.png?ex=68c5463a&is=68c3f4ba&hm=fd70436af7805d1ea09c720575c92a6ec5c4ea774c3e10e99fd6088ae7d73cf3&=&format=webp&quality=lossless&width=554&height=554"
-      alt="GGK Logo"
-      className={cn(className)}
-      width={554}
-      height={554}
-    />
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={cn("text-primary", className)}
+    >
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="hsl(var(--accent))" stroke="none" />
+      <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </svg>
   );
 }
