@@ -122,28 +122,26 @@ export default function HomePage() {
   }
 
   return (
-    <div className="flex h-full flex-col p-4 text-center">
+    <div className="flex h-full flex-col">
       {state === "idle" && (
-        <div className="flex h-full flex-col items-center justify-center">
-            <Card className="w-full max-w-sm animate-in fade-in-50 duration-500">
-            <CardHeader className="pb-4">
-                <div className="bg-primary rounded-full p-3 self-center mb-2">
-                    <BusFront className="h-8 w-8 text-primary-foreground" />
-                </div>
-                <CardTitle className="text-2xl font-headline text-center">Waar wilt u heen?</CardTitle>
-                <CardDescription className="text-center pt-1">De buurtbus haalt u op vanaf uw huidige locatie.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <Button size="lg" className="w-full" onClick={handleRequestRide}>
-                Roep de buurtbus op
-                </Button>
-            </CardContent>
-            </Card>
+        <div className="flex h-full flex-col justify-between p-6 text-center">
+          <div className="pt-16">
+            <div className="mx-auto mb-4 w-fit rounded-full bg-primary p-4">
+              <BusFront className="h-12 w-12 text-primary-foreground" />
+            </div>
+            <h1 className="text-3xl font-bold font-headline">Waar wilt u heen?</h1>
+            <p className="mt-2 text-muted-foreground">De buurtbus haalt u op vanaf uw huidige locatie.</p>
+          </div>
+          <div className="pb-4">
+            <Button size="lg" className="w-full" onClick={handleRequestRide}>
+              Roep de buurtbus op
+            </Button>
+          </div>
         </div>
       )}
 
       {state === "requesting" && (
-        <div className="flex h-full flex-col items-center justify-center gap-4">
+        <div className="flex h-full flex-col items-center justify-center gap-4 p-4 text-center">
           <Loader className="h-16 w-16 animate-spin text-primary" />
           <h2 className="text-xl font-semibold font-headline">
             Locatie wordt bepaald...
@@ -153,7 +151,7 @@ export default function HomePage() {
       )}
 
       {state === "waiting" && (
-        <div className="flex h-full flex-col justify-between animate-in fade-in-50 duration-500">
+        <div className="flex h-full flex-col justify-between animate-in fade-in-50 duration-500 p-4">
           <div className="flex flex-col items-center gap-6 w-full pt-8">
             <h2 className="text-2xl font-bold text-primary font-headline">
               Chauffeur is onderweg!
