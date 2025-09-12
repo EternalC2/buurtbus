@@ -80,6 +80,10 @@ export default function RegisterPage() {
       let errorMessage = "Er is een onbekende fout opgetreden.";
       if (error.code === 'auth/email-already-in-use') {
         errorMessage = "Dit e-mailadres is al in gebruik.";
+      } else if (error.code === 'auth/weak-password') {
+        errorMessage = "Het wachtwoord is te zwak. Gebruik minimaal 6 karakters."
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = "Het e-mailadres is ongeldig."
       }
       toast({
         variant: "destructive",
