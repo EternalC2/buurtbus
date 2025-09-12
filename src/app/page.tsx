@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useState } from "react";
 
@@ -31,6 +31,18 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Bus, Loader2 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+
 
 const formSchema = z.object({
   email: z.string().email({ message: "Voer een geldig e-mailadres in." }),
@@ -41,6 +53,8 @@ export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -49,6 +63,31 @@ export default function LoginPage() {
       password: "",
     },
   });
+
+  const handlePasswordReset = async () => {
+    if (!resetEmail) {
+      toast({
+        variant: "destructive",
+        title: "E-mailadres vereist",
+        description: "Voer een e-mailadres in om uw wachtwoord opnieuw in te stellen.",
+      });
+      return;
+    }
+    try {
+      await sendPasswordResetEmail(auth, resetEmail);
+      toast({
+        title: "E-mail verzonden",
+        description: "Controleer uw inbox voor een link om uw wachtwoord opnieuw in te stellen.",
+      });
+    } catch (error: any) {
+      console.error("Error sending password reset email:", error);
+       toast({
+        variant: "destructive",
+        title: "Verzenden mislukt",
+        description: "Kon de e-mail voor wachtwoordherstel niet verzenden. Controleer het e-mailadres.",
+      });
+    }
+  };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
@@ -120,7 +159,39 @@ export default function LoginPage() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Wachtwoord</FormLabel>
+                    <div className="flex items-center justify-between">
+                      <FormLabel>Wachtwoord</FormLabel>
+                       <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                           <Button 
+                              type="button"
+                              variant="link" 
+                              className="text-xs p-0 h-auto text-primary/80 font-semibold hover:text-primary-foreground"
+                              onClick={() => setResetEmail(form.getValues("email"))}
+                            >
+                              Wachtwoord vergeten?
+                           </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Wachtwoord opnieuw instellen</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Voer uw e-mailadres in om een link voor wachtwoordherstel te ontvangen.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <Input 
+                            type="email" 
+                            placeholder="naam@voorbeeld.com" 
+                            value={resetEmail}
+                            onChange={(e) => setResetEmail(e.target.value)}
+                          />
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Annuleren</AlertDialogCancel>
+                            <AlertDialogAction onClick={handlePasswordReset}>Verstuur E-mail</AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
                     <FormControl>
                       <Input type="password" {...field} />
                     </FormControl>
