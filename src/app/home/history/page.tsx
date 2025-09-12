@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { collection, query, where, getDocs, orderBy, Timestamp } from "firebase/firestore";
+import { collection, query, where, getDocs, Timestamp } from "firebase/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { db, auth } from "@/lib/firebase";
 import { Card, CardContent } from "@/components/ui/card";
@@ -18,6 +18,7 @@ interface Trip {
   to: string;
   driver: string;
   status: string;
+  createdAt: Date;
 }
 
 export default function HistoryPage() {
@@ -36,27 +37,30 @@ export default function HistoryPage() {
         const q = query(
           collection(db, "rideRequests"),
           where("userId", "==", user.uid),
-          where("status", "==", "completed"),
-          orderBy("createdAt", "desc")
+          where("status", "==", "completed")
         );
 
         const querySnapshot = await getDocs(q);
         const fetchedTrips: Trip[] = [];
         querySnapshot.forEach((doc) => {
           const data = doc.data();
-          const date = data.createdAt && data.createdAt instanceof Timestamp
+          const createdAt = data.createdAt && data.createdAt instanceof Timestamp
             ? data.createdAt.toDate()
             : new Date();
 
           fetchedTrips.push({
             id: doc.id,
-            date: format(date, "d MMMM yyyy, HH:mm", { locale: nl }),
+            date: format(createdAt, "d MMMM yyyy, HH:mm", { locale: nl }),
             from: "Huidige locatie", // Placeholder, as we only store one location
             to: data.destination || "Bestemming onbekend",
             driver: data.driverName || "Chauffeur onbekend",
-            status: data.status || "Onbekend"
+            status: data.status || "Onbekend",
+            createdAt: createdAt
           });
         });
+
+        // Sort trips on the client-side
+        fetchedTrips.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
         setTrips(fetchedTrips);
       } catch (error) {
