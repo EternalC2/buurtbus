@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Bus } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 export default function LoginPage() {
   return (
@@ -54,6 +55,15 @@ export default function LoginPage() {
             <Link href="/register" className="underline text-primary-foreground/80 font-semibold hover:text-primary-foreground">
               Registreer hier
             </Link>
+          </div>
+          <Separator className="my-2" />
+          <div className="flex w-full gap-2">
+            <Button variant="outline" className="w-full" asChild>
+                <Link href="/driver">Chauffeur</Link>
+            </Button>
+            <Button variant="outline" className="w-full" asChild>
+                <Link href="/admin">Beheerder</Link>
+            </Button>
           </div>
         </CardFooter>
       </Card>
