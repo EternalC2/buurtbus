@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -31,13 +30,13 @@ export default function SettingsPage() {
             <CardDescription>Beheer uw account en bekijk ons beleid.</CardDescription>
           </CardHeader>
           <CardContent>
-            <button className="flex w-full items-center justify-between rounded-md p-3 hover:bg-secondary">
+            <Link href="/home/settings/profile" className="flex w-full items-center justify-between rounded-md p-3 hover:bg-secondary">
               <div className="flex items-center gap-3">
                 <User className="h-5 w-5 text-muted-foreground" />
                 <span>Profiel bewerken</span>
               </div>
               <ChevronRight className="h-5 w-5 text-muted-foreground" />
-            </button>
+            </Link>
             <Separator className="my-2" />
             
             <Link href="/home/buurtbus-pas" className="flex w-full items-center justify-between rounded-md p-3 hover:bg-secondary">

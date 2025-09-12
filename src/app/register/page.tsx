@@ -31,7 +31,9 @@ import { Loader2, Bus } from "lucide-react";
 import { useState } from "react";
 
 const formSchema = z.object({
-  name: z.string().min(2, { message: "Naam moet minimaal 2 karakters lang zijn." }),
+  firstName: z.string().min(2, { message: "Voornaam moet minimaal 2 karakters lang zijn." }),
+  lastName: z.string().min(2, { message: "Achternaam moet minimaal 2 karakters lang zijn." }),
+  age: z.string().optional(),
   email: z.string().email({ message: "Voer een geldig e-mailadres in." }),
   phone: z.string().optional(),
   password: z.string().min(6, { message: "Wachtwoord moet minimaal 6 karakters lang zijn." }),
@@ -45,7 +47,9 @@ export default function RegisterPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
+      firstName: "",
+      lastName: "",
+      age: "",
       email: "",
       phone: "",
       password: "",
@@ -63,14 +67,16 @@ export default function RegisterPage() {
       );
       const user = userCredential.user;
 
+      const displayName = `${values.firstName} ${values.lastName}`;
       // 2. Update the user's profile in Firebase Auth (e.g., for displayName)
-      await updateProfile(user, { displayName: values.name });
+      await updateProfile(user, { displayName });
 
       // 3. Create a corresponding user document in Firestore
-      // This is the crucial step for storing roles and other app-specific data
       const userDocRef = doc(db, "users", user.uid);
       await setDoc(userDocRef, {
-        name: values.name,
+        firstName: values.firstName,
+        lastName: values.lastName,
+        age: values.age || "",
         email: values.email,
         phone: values.phone || "",
         createdAt: new Date(),
@@ -128,19 +134,47 @@ export default function RegisterPage() {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <CardContent className="grid gap-4">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Volledige naam</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Jan Jansen" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="firstName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Voornaam</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Jan" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="lastName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Achternaam</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Jansen" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+               <FormField
+                  control={form.control}
+                  name="age"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Leeftijd (optioneel)</FormLabel>
+                      <FormControl>
+                        <Input type="number" placeholder="30" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               <FormField
                 control={form.control}
                 name="email"
