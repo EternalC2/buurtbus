@@ -57,6 +57,8 @@ export default function HomePage() {
             location: userLocation,
             status: "pending",
             createdAt: serverTimestamp(),
+            driverName: "Jan Jansen", // Add driver name
+            destination: "Thuiskomst", // Add a destination
           });
 
           // 2. Get ETA from AI flow
