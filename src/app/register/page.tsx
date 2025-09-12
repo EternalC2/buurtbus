@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { db, auth } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
@@ -62,12 +62,16 @@ export default function RegisterPage() {
       );
       const user = userCredential.user;
 
+      // Set user's display name
+      await updateProfile(user, { displayName: values.name });
+
       // Store additional user info in Firestore
       await setDoc(doc(db, "users", user.uid), {
         name: values.name,
         email: values.email,
         phone: values.phone || "",
         createdAt: new Date(),
+        role: "user" // Default role
       });
 
       toast({
@@ -84,6 +88,8 @@ export default function RegisterPage() {
         errorMessage = "Het wachtwoord is te zwak. Gebruik minimaal 6 karakters."
       } else if (error.code === 'auth/invalid-email') {
         errorMessage = "Het e-mailadres is ongeldig."
+      } else if (error.code === 'firestore/permission-denied') {
+        errorMessage = "Kon gebruikersprofiel niet opslaan. Controleer de database-rechten."
       }
       toast({
         variant: "destructive",
