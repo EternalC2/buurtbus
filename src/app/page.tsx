@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -51,30 +52,31 @@ export default function LoginPage() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    try {
-      await signInWithEmailAndPassword(auth, values.email, values.password);
-      toast({
-        title: "Succesvol ingelogd!",
-        description: "U wordt nu doorgestuurd.",
+    signInWithEmailAndPassword(auth, values.email, values.password)
+      .then(() => {
+        toast({
+          title: "Succesvol ingelogd!",
+          description: "U wordt nu doorgestuurd.",
+        });
+        router.push("/home");
+      })
+      .catch((error: any) => {
+        console.error("Error signing in:", error);
+        let errorMessage = "Er is een onbekende fout opgetreden.";
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+          errorMessage = "Ongeldige inloggegevens. Controleer uw e-mail en wachtwoord.";
+        } else if (error.code === 'auth/invalid-email') {
+          errorMessage = "Het ingevoerde e-mailadres is ongeldig."
+        }
+        toast({
+          variant: "destructive",
+          title: "Inloggen mislukt",
+          description: errorMessage,
+        });
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
-      router.push("/home");
-      router.refresh(); // Force a refresh to ensure navigation happens
-    } catch (error: any) {
-      console.error("Error signing in:", error);
-      let errorMessage = "Er is een onbekende fout opgetreden.";
-      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-        errorMessage = "Ongeldige inloggegevens. Controleer uw e-mail en wachtwoord.";
-      } else if (error.code === 'auth/invalid-email') {
-        errorMessage = "Het ingevoerde e-mailadres is ongeldig."
-      }
-      toast({
-        variant: "destructive",
-        title: "Inloggen mislukt",
-        description: errorMessage,
-      });
-    } finally {
-      setIsLoading(false);
-    }
   }
 
   return (
