@@ -53,7 +53,7 @@ export default function HomePage() {
           const rideRequestRef = doc(db, "rideRequests", `${user.uid}_${Date.now()}`);
           await setDoc(rideRequestRef, {
             userId: user.uid,
-            userName: user.displayName || "Onbekende gebruiker",
+            userName: user.email || "Onbekende gebruiker",
             location: userLocation,
             status: "pending",
             createdAt: serverTimestamp(),
