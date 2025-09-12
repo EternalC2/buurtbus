@@ -6,7 +6,7 @@ import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { db, auth } from "@/lib/firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { BusFront, User, Clock, Loader, X, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -122,26 +122,28 @@ export default function HomePage() {
   }
 
   return (
-    <div className="flex h-full flex-col items-center justify-center p-4 text-center">
+    <div className="flex h-full flex-col p-4 text-center">
       {state === "idle" && (
-        <Card className="w-full max-w-sm animate-in fade-in-50 duration-500">
-          <CardHeader className="pb-4">
-            <div className="bg-primary rounded-full p-3 self-center mb-2">
-                <BusFront className="h-8 w-8 text-primary-foreground" />
-            </div>
-            <CardTitle className="text-2xl font-headline text-center">Waar wilt u heen?</CardTitle>
-            <CardDescription className="text-center pt-1">De buurtbus haalt u op vanaf uw huidige locatie.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button size="lg" className="w-full" onClick={handleRequestRide}>
-              Roep de buurtbus op
-            </Button>
-          </CardContent>
-        </Card>
+        <div className="flex h-full flex-col items-center justify-center">
+            <Card className="w-full max-w-sm animate-in fade-in-50 duration-500">
+            <CardHeader className="pb-4">
+                <div className="bg-primary rounded-full p-3 self-center mb-2">
+                    <BusFront className="h-8 w-8 text-primary-foreground" />
+                </div>
+                <CardTitle className="text-2xl font-headline text-center">Waar wilt u heen?</CardTitle>
+                <CardDescription className="text-center pt-1">De buurtbus haalt u op vanaf uw huidige locatie.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Button size="lg" className="w-full" onClick={handleRequestRide}>
+                Roep de buurtbus op
+                </Button>
+            </CardContent>
+            </Card>
+        </div>
       )}
 
       {state === "requesting" && (
-        <div className="flex flex-col items-center gap-4">
+        <div className="flex h-full flex-col items-center justify-center gap-4">
           <Loader className="h-16 w-16 animate-spin text-primary" />
           <h2 className="text-xl font-semibold font-headline">
             Locatie wordt bepaald...
@@ -151,55 +153,59 @@ export default function HomePage() {
       )}
 
       {state === "waiting" && (
-        <div className="flex flex-col items-center gap-6 w-full animate-in fade-in-50 duration-500">
-          <h2 className="text-2xl font-bold text-primary font-headline">
-            Chauffeur is onderweg!
-          </h2>
-          <Card className="w-full max-w-sm text-left">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-3">
-                <BusFront className="h-6 w-6 text-primary" />
-                <span>Uw Rit</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-               <div className="flex items-center gap-3">
-                <MapPin className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Wordt opgehaald op</p>
-                  <p className="font-semibold">Uw huidige locatie</p>
+        <div className="flex h-full flex-col justify-between animate-in fade-in-50 duration-500">
+          <div className="flex flex-col items-center gap-6 w-full pt-8">
+            <h2 className="text-2xl font-bold text-primary font-headline">
+              Chauffeur is onderweg!
+            </h2>
+            <Card className="w-full max-w-sm text-left">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-3">
+                  <BusFront className="h-6 w-6 text-primary" />
+                  <span>Uw Rit</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <MapPin className="h-5 w-5 text-muted-foreground" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Wordt opgehaald op</p>
+                    <p className="font-semibold">Uw huidige locatie</p>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <Clock className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Verwachte aankomsttijd</p>
-                  <p className="font-semibold">{eta || '...'}</p>
-                   {confidence !== null && (
-                    <p className="text-xs text-muted-foreground">
-                      Betrouwbaarheid: {Math.round(confidence * 100)}%
-                    </p>
-                  )}
+                <div className="flex items-center gap-3">
+                  <Clock className="h-5 w-5 text-muted-foreground" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Verwachte aankomsttijd</p>
+                    <p className="font-semibold">{eta || '...'}</p>
+                    {confidence !== null && (
+                      <p className="text-xs text-muted-foreground">
+                        Betrouwbaarheid: {Math.round(confidence * 100)}%
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <User className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Chauffeur</p>
-                  <p className="font-semibold">Jan Jansen</p>
+                <div className="flex items-center gap-3">
+                  <User className="h-5 w-5 text-muted-foreground" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Chauffeur</p>
+                    <p className="font-semibold">Jan Jansen</p>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Button
-            variant="destructive"
-            size="lg"
-            className="w-full max-w-sm"
-            onClick={handleCancel}
-          >
-            <X className="mr-2 h-5 w-5" />
-            Rit Annuleren
-          </Button>
+              </CardContent>
+            </Card>
+          </div>
+          <div className="pb-4">
+             <Button
+                variant="destructive"
+                size="lg"
+                className="w-full max-w-sm mx-auto"
+                onClick={handleCancel}
+            >
+                <X className="mr-2 h-5 w-5" />
+                Rit Annuleren
+            </Button>
+          </div>
         </div>
       )}
     </div>
