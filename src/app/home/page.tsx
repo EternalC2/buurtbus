@@ -54,12 +54,21 @@ export default function HomePage() {
           // 1. Get user data from Firestore
           const userDocRef = doc(db, "users", user.uid);
           const userDoc = await getDoc(userDocRef);
-          let userName = user.email || "Onbekende gebruiker";
+          
+          let userName = user.displayName || user.email || "Onbekende gebruiker";
           let userAge = "Onbekend";
 
           if (userDoc.exists()) {
             const userData = userDoc.data();
-            userName = `${userData.firstName} ${userData.lastName}`.trim() || userName;
+            const firstName = userData.firstName;
+            const lastName = userData.lastName;
+            
+            if (firstName && lastName) {
+                userName = `${firstName} ${lastName}`;
+            } else if (firstName) {
+                userName = firstName;
+            }
+
             userAge = userData.age || userAge;
           }
 
@@ -73,7 +82,7 @@ export default function HomePage() {
             status: "pending",
             createdAt: serverTimestamp(),
             driverName: "Jan Jansen", // Add driver name
-            destination: "Thuiskomst", // Add a destination
+            destination: "Bestemming onbekend", // Add a destination
           });
 
           // 3. Get ETA from AI flow
@@ -139,8 +148,8 @@ export default function HomePage() {
   return (
     <div className="flex h-full flex-col">
       {state === "idle" && (
-        <div className="flex flex-col items-center p-4">
-            <div className="flex flex-col items-center text-center mb-4">
+        <div className="flex flex-col p-4 flex-1">
+            <div className="flex flex-col items-center text-center mb-6">
                 <div className="bg-accent rounded-full p-4 mb-4">
                   <Bus className="h-10 w-10 text-primary" />
                 </div>
@@ -151,7 +160,8 @@ export default function HomePage() {
                   gauw, geel en knus!
                 </p>
             </div>
-            <div className="w-full max-w-sm mb-6 space-y-6">
+            
+            <div className="space-y-4">
                 <Card className="w-full mt-4">
                     <CardHeader>
                         <CardTitle>Waar wilt u heen?</CardTitle>
