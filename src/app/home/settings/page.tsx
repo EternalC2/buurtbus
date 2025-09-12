@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import { ChevronRight, User, Bell, HelpCircle } from "lucide-react";
+import { ChevronRight, User, Bell, FileText, Shield } from "lucide-react";
 import Link from 'next/link';
 
 export default function SettingsPage() {
@@ -13,8 +13,8 @@ export default function SettingsPage() {
       <div className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>Account</CardTitle>
-            <CardDescription>Beheer uw accountgegevens.</CardDescription>
+            <CardTitle>Account &amp; Juridisch</CardTitle>
+            <CardDescription>Beheer uw account en bekijk ons beleid.</CardDescription>
           </CardHeader>
           <CardContent>
             <button className="flex w-full items-center justify-between rounded-md p-3 hover:bg-secondary">
@@ -27,8 +27,16 @@ export default function SettingsPage() {
             <Separator className="my-2" />
             <button className="flex w-full items-center justify-between rounded-md p-3 hover:bg-secondary">
               <div className="flex items-center gap-3">
-                <HelpCircle className="h-5 w-5 text-muted-foreground" />
-                <span>Help &amp; Support</span>
+                <FileText className="h-5 w-5 text-muted-foreground" />
+                <span>Algemene Voorwaarden</span>
+              </div>
+              <ChevronRight className="h-5 w-5 text-muted-foreground" />
+            </button>
+            <Separator className="my-2" />
+            <button className="flex w-full items-center justify-between rounded-md p-3 hover:bg-secondary">
+              <div className="flex items-center gap-3">
+                <Shield className="h-5 w-5 text-muted-foreground" />
+                <span>Privacybeleid (AVG)</span>
               </div>
               <ChevronRight className="h-5 w-5 text-muted-foreground" />
             </button>
