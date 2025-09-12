@@ -13,15 +13,22 @@ export default function HomePage() {
   const [state, setState] = useState<RequestState>("idle");
   const [eta, setEta] = useState<string | null>(null);
   const [confidence, setConfidence] = useState<number | null>(null);
+  const [requestTime, setRequestTime] = useState<Date | null>(null);
+
+  useEffect(() => {
+    // Set the time on the client to avoid hydration mismatch
+    setRequestTime(new Date());
+  }, []);
 
   const handleRequest = async () => {
+    if (!requestTime) return;
     setState("requesting");
     try {
       // Hardcoded values for demonstration
       const input: EstimatedArrivalTimeInput = {
         userLocation: "52.370216, 4.895168", // Amsterdam Centraal
         busRoute: "Route 347",
-        timeOfRequest: new Date().toISOString(),
+        timeOfRequest: requestTime.toISOString(),
         historicalData: "Average speed 30km/h, common 5-10 min delay during peak hours.",
       };
       const result = await estimateArrivalTime(input);
