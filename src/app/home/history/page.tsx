@@ -6,9 +6,10 @@ import { collection, query, where, getDocs, orderBy, Timestamp } from "firebase/
 import { useAuthState } from "react-firebase-hooks/auth";
 import { db, auth } from "@/lib/firebase";
 import { Card, CardContent } from "@/components/ui/card";
-import { MoreHorizontal, Loader2 } from "lucide-react";
+import { CheckCircle, Loader2, MoreHorizontal } from "lucide-react";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
+import { Badge } from "@/components/ui/badge";
 
 interface Trip {
   id: string;
@@ -16,6 +17,7 @@ interface Trip {
   from: string;
   to: string;
   driver: string;
+  status: string;
 }
 
 export default function HistoryPage() {
@@ -34,6 +36,7 @@ export default function HistoryPage() {
         const q = query(
           collection(db, "rideRequests"),
           where("userId", "==", user.uid),
+          where("status", "==", "completed"),
           orderBy("createdAt", "desc")
         );
 
@@ -41,7 +44,6 @@ export default function HistoryPage() {
         const fetchedTrips: Trip[] = [];
         querySnapshot.forEach((doc) => {
           const data = doc.data();
-          // Ensure createdAt exists and is a Timestamp before converting
           const date = data.createdAt && data.createdAt instanceof Timestamp
             ? data.createdAt.toDate()
             : new Date();
@@ -52,6 +54,7 @@ export default function HistoryPage() {
             from: "Huidige locatie", // Placeholder, as we only store one location
             to: data.destination || "Bestemming onbekend",
             driver: data.driverName || "Chauffeur onbekend",
+            status: data.status || "Onbekend"
           });
         });
 
@@ -80,20 +83,25 @@ export default function HistoryPage() {
         <div className="space-y-4">
           {trips.map((trip) => (
             <Card key={trip.id}>
-              <CardContent className="p-4 flex items-center justify-between">
-                <div>
-                  <p className="font-semibold">{trip.from} &rarr; {trip.to}</p>
-                  <p className="text-sm text-muted-foreground">{trip.date}</p>
-                   <p className="text-sm text-muted-foreground">Chauffeur: {trip.driver}</p>
+              <CardContent className="p-4 flex items-start justify-between">
+                <div className="flex items-center gap-4">
+                   <CheckCircle className="h-6 w-6 text-green-500 flex-shrink-0 mt-1" />
+                   <div>
+                    <p className="font-semibold">{trip.from} &rarr; {trip.to}</p>
+                    <p className="text-sm text-muted-foreground">{trip.date}</p>
+                    <p className="text-sm text-muted-foreground">Chauffeur: {trip.driver}</p>
+                  </div>
                 </div>
-                <MoreHorizontal className="text-muted-foreground" />
+                <Badge variant="outline" className="capitalize text-green-600 border-green-500">
+                  Voltooid
+                </Badge>
               </CardContent>
             </Card>
           ))}
         </div>
       ) : (
         <p className="text-center text-muted-foreground mt-8">
-          U heeft nog geen ritten gemaakt.
+          U heeft nog geen voltooide ritten.
         </p>
       )}
     </div>
