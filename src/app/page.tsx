@@ -1,6 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { useState } from "react";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,12 +18,64 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Bus } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { Bus, Loader2 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
+const formSchema = z.object({
+  email: z.string().email({ message: "Voer een geldig e-mailadres in." }),
+  password: z.string().min(1, { message: "Wachtwoord is vereist." }),
+});
+
 export default function LoginPage() {
+  const router = useRouter();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsLoading(true);
+    try {
+      await signInWithEmailAndPassword(auth, values.email, values.password);
+      toast({
+        title: "Succesvol ingelogd!",
+        description: "U wordt nu doorgestuurd.",
+      });
+      router.push("/home");
+    } catch (error: any) {
+      console.error("Error signing in:", error);
+      let errorMessage = "Er is een onbekende fout opgetreden.";
+      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+        errorMessage = "Ongeldige inloggegevens. Controleer uw e-mail en wachtwoord.";
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = "Het ingevoerde e-mailadres is ongeldig."
+      }
+      toast({
+        variant: "destructive",
+        title: "Inloggen mislukt",
+        description: errorMessage,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   return (
     <main className="flex min-h-full flex-col items-center justify-center p-6">
       <div className="flex flex-col items-center text-center mb-8">
@@ -36,36 +96,59 @@ export default function LoginPage() {
             Voer uw e-mailadres en wachtwoord in om door te gaan.
           </CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-4">
-          <div className="grid gap-2">
-            <Label htmlFor="email">E-mailadres</Label>
-            <Input id="email" type="email" placeholder="naam@voorbeeld.com" required />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="password">Wachtwoord</Label>
-            <Input id="password" type="password" required />
-          </div>
-        </CardContent>
-        <CardFooter className="flex flex-col gap-4">
-          <Button className="w-full" asChild>
-            <Link href="/home">Inloggen</Link>
-          </Button>
-          <div className="text-center text-sm">
-            Nog geen account?{" "}
-            <Link href="/register" className="underline text-primary-foreground/80 font-semibold hover:text-primary-foreground">
-              Registreer hier
-            </Link>
-          </div>
-          <Separator className="my-2" />
-          <div className="flex w-full gap-2">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <CardContent className="grid gap-4">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>E-mailadres</FormLabel>
+                    <FormControl>
+                      <Input type="email" placeholder="naam@voorbeeld.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Wachtwoord</FormLabel>
+                    <FormControl>
+                      <Input type="password" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+            <CardFooter className="flex flex-col gap-4">
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Inloggen
+              </Button>
+            </CardFooter>
+          </form>
+        </Form>
+        <div className="px-6 pb-6 text-center text-sm">
+          Nog geen account?{" "}
+          <Link href="/register" className="underline text-primary-foreground/80 font-semibold hover:text-primary-foreground">
+            Registreer hier
+          </Link>
+        </div>
+        <Separator className="my-0" />
+        <div className="p-6 flex w-full gap-2">
             <Button variant="outline" className="w-full" asChild>
                 <Link href="/driver">Chauffeur</Link>
             </Button>
             <Button variant="outline" className="w-full" asChild>
                 <Link href="/admin">Beheerder</Link>
             </Button>
-          </div>
-        </CardFooter>
+        </div>
       </Card>
     </main>
   );
