@@ -7,7 +7,7 @@ import { db, auth } from "@/lib/firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { BusFront, User, Clock, Loader, X, MapPin } from "lucide-react";
+import { Bus, User, Clock, Loader, X, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { estimateArrivalTime, EstimatedArrivalTimeInput } from "@/ai/ai-estimated-arrival-time";
@@ -124,13 +124,17 @@ export default function HomePage() {
   return (
     <div className="flex h-full flex-col">
       {state === "idle" && (
-        <div className="flex h-full flex-col justify-between p-6 text-center">
-          <div className="pt-16">
-            <div className="mx-auto mb-4 w-fit rounded-full bg-primary p-4">
-              <BusFront className="h-12 w-12 text-primary-foreground" />
+        <div className="flex h-full flex-col justify-between p-6">
+           <div className="flex flex-col items-center text-center pt-16">
+            <div className="bg-accent rounded-full p-4 mb-4">
+              <Bus className="h-10 w-10 text-primary" />
             </div>
-            <h1 className="text-3xl font-bold font-headline">Waar wilt u heen?</h1>
-            <p className="mt-2 text-muted-foreground">De buurtbus haalt u op vanaf uw huidige locatie.</p>
+            <h1 className="text-5xl font-bold text-primary font-headline tracking-tighter">
+              Buurtbus
+            </h1>
+            <p className="text-muted-foreground mt-2 font-semibold">
+              Eenvoudig, snel en betrouwbaar.
+            </p>
           </div>
           <div className="pb-4">
             <Button size="lg" className="w-full" onClick={handleRequestRide}>
@@ -159,7 +163,7 @@ export default function HomePage() {
             <Card className="w-full max-w-sm text-left">
               <CardHeader>
                 <CardTitle className="flex items-center gap-3">
-                  <BusFront className="h-6 w-6 text-primary" />
+                  <Bus className="h-6 w-6 text-primary" />
                   <span>Uw Rit</span>
                 </CardTitle>
               </CardHeader>
