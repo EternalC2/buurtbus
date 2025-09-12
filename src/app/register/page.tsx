@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -29,6 +30,18 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Bus } from "lucide-react";
 import { useState } from "react";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
 
 const formSchema = z.object({
   firstName: z.string().min(2, { message: "Voornaam moet minimaal 2 karakters lang zijn." }),
@@ -37,6 +50,9 @@ const formSchema = z.object({
   email: z.string().email({ message: "Voer een geldig e-mailadres in." }),
   phone: z.string().optional(),
   password: z.string().min(6, { message: "Wachtwoord moet minimaal 6 karakters lang zijn." }),
+  terms: z.boolean().refine((val) => val === true, {
+    message: "U moet de algemene voorwaarden accepteren om door te gaan.",
+  }),
 });
 
 export default function RegisterPage() {
@@ -53,6 +69,7 @@ export default function RegisterPage() {
       email: "",
       phone: "",
       password: "",
+      terms: false,
     },
   });
 
@@ -211,6 +228,54 @@ export default function RegisterPage() {
                       <Input type="password" {...field} />
                     </FormControl>
                     <FormMessage />
+                  </FormItem>
+                )}
+              />
+               <FormField
+                control={form.control}
+                name="terms"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow-sm">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>
+                        Ik ga akkoord met de{" "}
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <span className="underline cursor-pointer text-primary/90 hover:text-primary">
+                              algemene voorwaarden
+                            </span>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Algemene Voorwaarden</AlertDialogTitle>
+                              <AlertDialogDescription className="max-h-[60vh] overflow-y-auto text-left">
+                                <p className="mb-2">Laatst bijgewerkt: [Datum]</p>
+                                <p className="mb-4">Welkom bij Buurtbus. Lees deze voorwaarden zorgvuldig door voordat u onze service gebruikt.</p>
+                                <h3 className="font-bold mb-2">1. Acceptatie van Voorwaarden</h3>
+                                <p className="mb-4">Door gebruik te maken van de Buurtbus app, gaat u akkoord met deze algemene voorwaarden. Als u niet akkoord gaat, dient u de app niet te gebruiken.</p>
+                                <h3 className="font-bold mb-2">2. De Service</h3>
+                                <p className="mb-4">Buurtbus is een platform dat reizigers in contact brengt met vrijwillige chauffeurs. De service is afhankelijk van de beschikbaarheid van vrijwilligers en er kunnen geen garanties worden gegeven over de beschikbaarheid of wachttijden.</p>
+                                <h3 className="font-bold mb-2">3. Gebruikersaccount</h3>
+                                <p className="mb-4">U bent verantwoordelijk voor het geheimhouden van uw accountgegevens en voor alle activiteiten die onder uw account plaatsvinden. U dient ons onmiddellijk op de hoogte te stellen van elk ongeoorloofd gebruik van uw account.</p>
+                                <h3 className="font-bold mb-2">4. Beperking van Aansprakelijkheid</h3>
+                                <p className="mb-4">De service wordt geleverd "zoals deze is". Wij zijn niet aansprakelijk voor enige directe of indirecte schade die voortvloeit uit het gebruik van of de onmogelijkheid tot het gebruik van de service.</p>
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogAction>Sluiten</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                        .
+                      </FormLabel>
+                      <FormMessage />
+                    </div>
                   </FormItem>
                 )}
               />
