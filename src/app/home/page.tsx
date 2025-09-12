@@ -1,10 +1,15 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { db, auth } from "@/lib/firebase";
+import { useAuthState } from "react-firebase-hooks/auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bus, User, Clock, Loader, X } from "lucide-react";
+import { Bus, User, Clock, Loader, X, LocateFixed } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 import { estimateArrivalTime, EstimatedArrivalTimeInput } from "@/ai/ai-estimated-arrival-time";
 
 type RequestState = "idle" | "requesting" | "waiting";
@@ -13,58 +18,117 @@ export default function HomePage() {
   const [state, setState] = useState<RequestState>("idle");
   const [eta, setEta] = useState<string | null>(null);
   const [confidence, setConfidence] = useState<number | null>(null);
-  const [requestTime, setRequestTime] = useState<Date | null>(null);
+  const [user, loading] = useAuthState(auth);
+  const { toast } = useToast();
 
-  useEffect(() => {
-    // Set the time on the client to avoid hydration mismatch
-    setRequestTime(new Date());
-  }, []);
-
-  const handleRequest = async () => {
-    if (!requestTime) return;
-    setState("requesting");
-    try {
-      // Hardcoded values for demonstration
-      const input: EstimatedArrivalTimeInput = {
-        userLocation: "52.370216, 4.895168", // Amsterdam Centraal
-        busRoute: "Route 347",
-        timeOfRequest: requestTime.toISOString(),
-        historicalData: "Average speed 30km/h, common 5-10 min delay during peak hours.",
-      };
-      const result = await estimateArrivalTime(input);
-      const arrivalTime = new Date(result.estimatedArrivalTime);
-      const now = new Date();
-      const diffMinutes = Math.round((arrivalTime.getTime() - now.getTime()) / 60000);
-      
-      setEta(`${diffMinutes} minuten`);
-      setConfidence(result.confidence);
-      setState("waiting");
-    } catch (error) {
-      console.error("Error estimating arrival time:", error);
-      // Fallback to random ETA on error
-      const randomEta = Math.floor(Math.random() * 10) + 5;
-      setEta(`~ ${randomEta} minuten`);
-      setConfidence(null);
-      setState("waiting");
+  const handleRequestRide = () => {
+    if (!navigator.geolocation) {
+      toast({
+        variant: "destructive",
+        title: "Locatie niet ondersteund",
+        description: "Uw browser ondersteunt geen geolocatie.",
+      });
+      return;
     }
+
+    setState("requesting");
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        const userLocation = `${latitude}, ${longitude}`;
+
+        if (!user) {
+          toast({
+            variant: "destructive",
+            title: "Niet ingelogd",
+            description: "U moet ingelogd zijn om een rit aan te vragen.",
+          });
+          setState("idle");
+          return;
+        }
+
+        try {
+          // 1. Save ride request to Firestore
+          const rideRequestRef = doc(db, "rideRequests", `${user.uid}_${Date.now()}`);
+          await setDoc(rideRequestRef, {
+            userId: user.uid,
+            userName: user.displayName || "Onbekende gebruiker",
+            location: userLocation,
+            status: "pending",
+            createdAt: serverTimestamp(),
+          });
+
+          // 2. Get ETA from AI flow
+          const input: EstimatedArrivalTimeInput = {
+            userLocation: userLocation,
+            busRoute: "Route 347", // Example value
+            timeOfRequest: new Date().toISOString(),
+            historicalData: "Gemiddelde snelheid 30km/u, 5-10 min vertraging in de spits.",
+          };
+          const result = await estimateArrivalTime(input);
+          const arrivalTime = new Date(result.estimatedArrivalTime);
+          const now = new Date();
+          const diffMinutes = Math.round((arrivalTime.getTime() - now.getTime()) / 60000);
+          
+          setEta(`${diffMinutes} minuten`);
+          setConfidence(result.confidence);
+          setState("waiting");
+          toast({
+            title: "Verzoek ontvangen!",
+            description: "De chauffeur is op de hoogte gebracht.",
+          });
+
+        } catch (error) {
+          console.error("Error requesting ride:", error);
+          toast({
+            variant: "destructive",
+            title: "Fout bij aanvragen",
+            description: "Kon de ritaanvraag of de wachttijd niet verwerken.",
+          });
+          setState("idle");
+        }
+      },
+      (error) => {
+        console.error("Geolocation error:", error);
+        toast({
+          variant: "destructive",
+          title: "Locatiefout",
+          description: "Kon uw locatie niet ophalen. Zorg dat u toestemming heeft gegeven.",
+        });
+        setState("idle");
+      }
+    );
   };
 
   const handleCancel = () => {
+    // Here you would add logic to update the Firestore document to "cancelled"
     setState("idle");
     setEta(null);
     setConfidence(null);
+    toast({
+      title: "Rit geannuleerd",
+    });
   };
+
+  if (loading) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center p-4">
+        <Loader className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-full flex-col items-center justify-center p-4 pt-10 text-center">
       {state === "idle" && (
         <>
-          <h1 className="text-2xl font-bold font-headline mb-4">Welkom!</h1>
+          <h1 className="text-2xl font-bold font-headline mb-4">Welkom, {user?.displayName?.split(' ')[0] || 'reiziger'}!</h1>
           <p className="text-muted-foreground mb-12 max-w-xs">
             Druk op de knop om de buurtbus op te roepen naar uw huidige locatie.
           </p>
           <button
-            onClick={handleRequest}
+            onClick={handleRequestRide}
             className={cn(
                 "relative flex flex-col items-center justify-center w-48 h-48 rounded-full bg-primary text-primary-foreground shadow-lg transition-transform duration-300 hover:scale-105 active:scale-95 animate-pulse-ring"
             )}
@@ -80,9 +144,9 @@ export default function HomePage() {
         <div className="flex flex-col items-center gap-4">
           <Loader className="h-16 w-16 animate-spin text-primary" />
           <h2 className="text-xl font-semibold font-headline">
-            Verzoek wordt verstuurd...
+            Locatie wordt bepaald...
           </h2>
-          <p className="text-muted-foreground">Een moment geduld, we berekenen uw wachttijd.</p>
+          <p className="text-muted-foreground max-w-xs">Een moment geduld, we sturen uw verzoek zo door.</p>
         </div>
       )}
 
