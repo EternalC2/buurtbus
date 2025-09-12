@@ -170,7 +170,7 @@ export default function HomePage() {
                         <div>
                             <h3 className="font-semibold flex items-center gap-2 mb-2"><Ticket className="h-4 w-4"/>Vervoersbewijzen</h3>
                             <p className="text-muted-foreground">Kaartje kopen bij instappen: <span className="font-bold text-foreground">€1,50</span></p>
-                            <p className="text-muted-foreground">Kaartjes zijn 1 uur geldig. (Contant of pin)</p>
+                            <p className="text-muted-foreground">Kaartjes zijn 1 uur geldig. (Alleen pinbetaling)</p>
                             <p className="mt-2 font-semibold text-destructive/90">Let op: OV-chipkaart is niet geldig.</p>
                              <p className="text-muted-foreground">Hiervoor hebben we Buurtbus pasjes.</p>
                         </div>
