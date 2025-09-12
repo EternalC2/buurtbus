@@ -6,8 +6,8 @@ import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { db, auth } from "@/lib/firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bus, User, Clock, Loader, X } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { BusFront, User, Clock, Loader, X, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { estimateArrivalTime, EstimatedArrivalTimeInput } from "@/ai/ai-estimated-arrival-time";
@@ -122,25 +122,22 @@ export default function HomePage() {
   }
 
   return (
-    <div className="flex h-full flex-col items-center justify-center p-4 pt-10 text-center">
+    <div className="flex h-full flex-col items-center justify-center p-4 text-center">
       {state === "idle" && (
-        <>
-          <h1 className="text-2xl font-bold font-headline mb-4">Welkom, {user?.displayName?.split(' ')[0] || 'reiziger'}!</h1>
-          <p className="text-muted-foreground mb-12 max-w-xs">
-            Druk op de knop om de buurtbus op te roepen naar uw huidige locatie.
-          </p>
-          <button
-            onClick={handleRequestRide}
-            className={cn(
-                "relative flex flex-col items-center justify-center w-48 h-48 rounded-full bg-accent text-primary shadow-lg transition-transform duration-300 hover:scale-105 active:scale-95 animate-pulse-ring"
-            )}
-            style={{ animation: 'pulse-ring 2.5s infinite cubic-bezier(0.215, 0.61, 0.355, 1)', '--tw-ring-color': 'hsl(var(--accent))' } as React.CSSProperties}
-            aria-label="Roep de bus op"
-          >
-            <Bus className="h-20 w-20 mb-1" />
-            <span className="font-bold text-lg">Roep de bus op</span>
-          </button>
-        </>
+        <Card className="w-full max-w-sm animate-in fade-in-50 duration-500">
+          <CardHeader className="pb-4">
+            <div className="bg-primary rounded-full p-3 self-center mb-2">
+                <BusFront className="h-8 w-8 text-primary-foreground" />
+            </div>
+            <CardTitle className="text-2xl font-headline text-center">Waar wilt u heen?</CardTitle>
+            <CardDescription className="text-center pt-1">De buurtbus haalt u op vanaf uw huidige locatie.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button size="lg" className="w-full" onClick={handleRequestRide}>
+              Roep de buurtbus op
+            </Button>
+          </CardContent>
+        </Card>
       )}
 
       {state === "requesting" && (
@@ -161,11 +158,18 @@ export default function HomePage() {
           <Card className="w-full max-w-sm text-left">
             <CardHeader>
               <CardTitle className="flex items-center gap-3">
-                <Bus className="h-6 w-6 text-primary" />
+                <BusFront className="h-6 w-6 text-primary" />
                 <span>Uw Rit</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+               <div className="flex items-center gap-3">
+                <MapPin className="h-5 w-5 text-muted-foreground" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Wordt opgehaald op</p>
+                  <p className="font-semibold">Uw huidige locatie</p>
+                </div>
+              </div>
               <div className="flex items-center gap-3">
                 <Clock className="h-5 w-5 text-muted-foreground" />
                 <div>
