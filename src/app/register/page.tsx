@@ -55,6 +55,7 @@ export default function RegisterPage() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     try {
+      // 1. Create user in Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         values.email,
@@ -62,16 +63,18 @@ export default function RegisterPage() {
       );
       const user = userCredential.user;
 
-      // Set user's display name
+      // 2. Update the user's profile in Firebase Auth (e.g., for displayName)
       await updateProfile(user, { displayName: values.name });
 
-      // Store additional user info in Firestore
-      await setDoc(doc(db, "users", user.uid), {
+      // 3. Create a corresponding user document in Firestore
+      // This is the crucial step for storing roles and other app-specific data
+      const userDocRef = doc(db, "users", user.uid);
+      await setDoc(userDocRef, {
         name: values.name,
         email: values.email,
         phone: values.phone || "",
         createdAt: new Date(),
-        role: "user" // Default role
+        role: "user" // Assign a default role
       });
 
       toast({
@@ -79,6 +82,7 @@ export default function RegisterPage() {
         description: "U wordt nu doorgestuurd naar de homepagina.",
       });
       router.push("/home");
+
     } catch (error: any) {
       console.error("Error creating user:", error);
       let errorMessage = "Er is een onbekende fout opgetreden.";
