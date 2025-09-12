@@ -15,7 +15,7 @@ export default function HomePage() {
   useEffect(() => {
     if (state === "requesting") {
       const timer = setTimeout(() => {
-        // Simulate AI ETA calculation
+        // Simulate AI ETA calculation only on the client
         setEta(Math.floor(Math.random() * 10) + 5);
         setState("waiting");
       }, 2000);
@@ -80,7 +80,7 @@ export default function HomePage() {
                 <Clock className="h-5 w-5 text-muted-foreground" />
                 <div>
                   <p className="text-sm text-muted-foreground">Verwachte aankomsttijd</p>
-                  <p className="font-semibold">{`~ ${eta} minuten`}</p>
+                  <p className="font-semibold">{eta !== null ? `~ ${eta} minuten` : '...'}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
