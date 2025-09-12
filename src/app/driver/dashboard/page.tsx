@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 interface RideRequest {
   id: string;
   userName: string;
+  userAge: string;
   location: string;
   status: 'pending' | 'accepted' | 'completed' | 'cancelled';
   createdAt: any;
@@ -155,7 +156,7 @@ export default function DriverDashboardPage() {
                         <div className="flex items-center gap-3">
                             <User className="h-6 w-6 text-muted-foreground" />
                             <div>
-                                <p className="font-semibold">{activeRide.userName}</p>
+                                <p className="font-semibold">{activeRide.userName} ({activeRide.userAge || 'leeftijd onbekend'})</p>
                                 <p className="text-sm text-muted-foreground">Bestemming: {activeRide.destination}</p>
                             </div>
                         </div>
@@ -191,7 +192,7 @@ export default function DriverDashboardPage() {
                         <div className="flex items-center gap-3">
                           <User className="h-6 w-6 text-muted-foreground" />
                           <div>
-                            <p className="font-semibold">{req.userName}</p>
+                            <p className="font-semibold">{req.userName} ({req.userAge || 'leeftijd onbekend'})</p>
                             <p className="text-sm text-muted-foreground">Bestemming: {req.destination}</p>
                           </div>
                         </div>

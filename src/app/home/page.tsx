@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc, serverTimestamp, getDoc } from "firebase/firestore";
 import { db, auth } from "@/lib/firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Button } from "@/components/ui/button";
@@ -51,11 +51,24 @@ export default function HomePage() {
         }
 
         try {
-          // 1. Save ride request to Firestore
+          // 1. Get user data from Firestore
+          const userDocRef = doc(db, "users", user.uid);
+          const userDoc = await getDoc(userDocRef);
+          let userName = user.email || "Onbekende gebruiker";
+          let userAge = "Onbekend";
+
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            userName = `${userData.firstName} ${userData.lastName}`.trim() || userName;
+            userAge = userData.age || userAge;
+          }
+
+          // 2. Save ride request to Firestore
           const rideRequestRef = doc(db, "rideRequests", `${user.uid}_${Date.now()}`);
           await setDoc(rideRequestRef, {
             userId: user.uid,
-            userName: user.email || "Onbekende gebruiker",
+            userName: userName,
+            userAge: userAge,
             location: userLocation,
             status: "pending",
             createdAt: serverTimestamp(),
@@ -63,7 +76,7 @@ export default function HomePage() {
             destination: "Thuiskomst", // Add a destination
           });
 
-          // 2. Get ETA from AI flow
+          // 3. Get ETA from AI flow
           const input: EstimatedArrivalTimeInput = {
             userLocation: userLocation,
             busRoute: "Route 347", // Example value
@@ -139,7 +152,7 @@ export default function HomePage() {
                 </p>
             </div>
             <div className="w-full max-w-sm mb-6 space-y-6">
-                <Card className="w-full">
+                <Card className="w-full mt-4">
                     <CardHeader>
                         <CardTitle>Waar wilt u heen?</CardTitle>
                         <CardDescription>
