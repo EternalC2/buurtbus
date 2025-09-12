@@ -41,6 +41,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Textarea } from "@/components/ui/textarea";
 
 
 const formSchema = z.object({
@@ -53,6 +54,8 @@ const formSchema = z.object({
   terms: z.boolean().refine((val) => val === true, {
     message: "U moet de algemene voorwaarden accepteren om door te gaan.",
   }),
+  isMindervalide: z.boolean().optional().default(false),
+  beperking: z.string().optional(),
 });
 
 export default function RegisterPage() {
@@ -70,8 +73,12 @@ export default function RegisterPage() {
       phone: "",
       password: "",
       terms: false,
+      isMindervalide: false,
+      beperking: "",
     },
   });
+
+  const isMindervalide = form.watch("isMindervalide");
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
@@ -97,7 +104,9 @@ export default function RegisterPage() {
         email: values.email,
         phone: values.phone || "",
         createdAt: new Date(),
-        role: "user" // Assign a default role
+        role: "user",
+        isMindervalide: values.isMindervalide,
+        beperking: values.beperking || "",
       });
 
       toast({
@@ -231,6 +240,40 @@ export default function RegisterPage() {
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="isMindervalide"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow-sm">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>
+                        Ik ben mindervalide
+                      </FormLabel>
+                    </div>
+                  </FormItem>
+                )}
+              />
+              {isMindervalide && (
+                 <FormField
+                  control={form.control}
+                  name="beperking"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Beschrijf uw beperking (optioneel)</FormLabel>
+                      <FormControl>
+                        <Textarea placeholder="Bijv. rolstoelgebruiker, slechtziend" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
                <FormField
                 control={form.control}
                 name="terms"

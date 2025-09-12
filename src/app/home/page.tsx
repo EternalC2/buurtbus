@@ -57,6 +57,8 @@ export default function HomePage() {
           
           let userName = user.displayName || user.email || "Onbekende gebruiker";
           let userAge = "Onbekend";
+          let isMindervalide = false;
+          let beperking = "";
 
           if (userDoc.exists()) {
             const userData = userDoc.data();
@@ -70,6 +72,8 @@ export default function HomePage() {
             }
 
             userAge = userData.age || userAge;
+            isMindervalide = userData.isMindervalide || false;
+            beperking = userData.beperking || "";
           }
 
           // 2. Save ride request to Firestore
@@ -78,6 +82,8 @@ export default function HomePage() {
             userId: user.uid,
             userName: userName,
             userAge: userAge,
+            isMindervalide: isMindervalide,
+            beperking: beperking,
             location: userLocation,
             status: "pending",
             createdAt: serverTimestamp(),

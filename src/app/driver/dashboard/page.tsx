@@ -9,8 +9,9 @@ import { db, auth } from "@/lib/firebase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowLeft, User, Bus, Clock, Loader2, CheckCircle, MapPin } from "lucide-react";
+import { ArrowLeft, User, Bus, Clock, Loader2, CheckCircle, MapPin, Accessibility } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Separator } from "@/components/ui/separator";
 
 interface RideRequest {
   id: string;
@@ -22,6 +23,8 @@ interface RideRequest {
   driverId?: string;
   driverName?: string;
   destination: string;
+  isMindervalide?: boolean;
+  beperking?: string;
 }
 
 export default function DriverDashboardPage() {
@@ -166,6 +169,18 @@ export default function DriverDashboardPage() {
                             </a>
                         </Button>
                     </div>
+                     {activeRide.isMindervalide && (
+                        <>
+                          <Separator />
+                          <div className="flex items-start gap-3 text-sm">
+                            <Accessibility className="h-5 w-5 text-primary flex-shrink-0" />
+                            <div>
+                              <p className="font-semibold">Passagier is mindervalide</p>
+                              {activeRide.beperking && <p className="text-muted-foreground">{activeRide.beperking}</p>}
+                            </div>
+                          </div>
+                        </>
+                      )}
                     <Button className="w-full" size="lg" onClick={() => handleFinishRide(activeRide.id)}>
                         <CheckCircle className="mr-2 h-5 w-5"/> Rit Afronden
                     </Button>
@@ -188,17 +203,31 @@ export default function DriverDashboardPage() {
                 <div className="space-y-4">
                   {pendingRequests.length > 0 ? (
                     pendingRequests.map((req) => (
-                      <div key={req.id} className="flex items-center justify-between p-3 rounded-lg border bg-background">
-                        <div className="flex items-center gap-3">
-                          <User className="h-6 w-6 text-muted-foreground" />
-                          <div>
-                            <p className="font-semibold">{req.userName} {req.userAge && req.userAge !== 'Onbekend' ? `(${req.userAge})` : ''}</p>
-                            <p className="text-sm text-muted-foreground">Bestemming: {req.destination}</p>
-                          </div>
+                      <div key={req.id} className="p-3 rounded-lg border bg-background">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <User className="h-6 w-6 text-muted-foreground" />
+                              <div>
+                                <p className="font-semibold">{req.userName} {req.userAge && req.userAge !== 'Onbekend' ? `(${req.userAge})` : ''}</p>
+                                <p className="text-sm text-muted-foreground">Bestemming: {req.destination}</p>
+                              </div>
+                            </div>
+                            <Button size="sm" onClick={() => handleAcceptRide(req.id)} disabled={!!activeRide}>
+                                {!!activeRide ? 'Niet beschikbaar' : 'Accepteren'}
+                            </Button>
                         </div>
-                        <Button size="sm" onClick={() => handleAcceptRide(req.id)} disabled={!!activeRide}>
-                            {!!activeRide ? 'Niet beschikbaar' : 'Accepteren'}
-                        </Button>
+                        {req.isMindervalide && (
+                          <>
+                            <Separator className="my-3" />
+                            <div className="flex items-start gap-3 text-sm">
+                              <Accessibility className="h-5 w-5 text-primary flex-shrink-0" />
+                              <div>
+                                <p className="font-semibold">Passagier is mindervalide</p>
+                                {req.beperking && <p className="text-muted-foreground">{req.beperking}</p>}
+                              </div>
+                            </div>
+                          </>
+                        )}
                       </div>
                     ))
                   ) : (
@@ -214,5 +243,3 @@ export default function DriverDashboardPage() {
     </div>
   );
 }
-
-    

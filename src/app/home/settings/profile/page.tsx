@@ -18,11 +18,15 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, ArrowLeft } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
 
 const formSchema = z.object({
   firstName: z.string().min(2, { message: "Voornaam moet minimaal 2 karakters lang zijn." }),
   lastName: z.string().min(2, { message: "Achternaam moet minimaal 2 karakters lang zijn." }),
   age: z.string().optional(),
+  isMindervalide: z.boolean().optional().default(false),
+  beperking: z.string().optional(),
 });
 
 export default function ProfilePage() {
@@ -38,8 +42,12 @@ export default function ProfilePage() {
       firstName: "",
       lastName: "",
       age: "",
+      isMindervalide: false,
+      beperking: "",
     },
   });
+
+  const isMindervalide = form.watch("isMindervalide");
 
   useEffect(() => {
     async function fetchUserData() {
@@ -52,6 +60,8 @@ export default function ProfilePage() {
             firstName: userData.firstName || "",
             lastName: userData.lastName || "",
             age: userData.age || "",
+            isMindervalide: userData.isMindervalide || false,
+            beperking: userData.beperking || "",
           });
         }
         setIsFetching(false);
@@ -74,10 +84,14 @@ export default function ProfilePage() {
         firstName: values.firstName,
         lastName: values.lastName,
         age: values.age || "",
+        isMindervalide: values.isMindervalide,
+        beperking: values.beperking || "",
       });
 
       const displayName = `${values.firstName} ${values.lastName}`;
-      await updateProfile(user, { displayName });
+      if (user.displayName !== displayName) {
+        await updateProfile(user, { displayName });
+      }
 
       toast({
         title: "Profiel bijgewerkt",
@@ -163,7 +177,41 @@ export default function ProfilePage() {
                   </FormItem>
                 )}
               />
-               <Button type="submit" className="w-full" disabled={isLoading}>
+               <FormField
+                control={form.control}
+                name="isMindervalide"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow-sm">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>
+                        Ik ben mindervalide
+                      </FormLabel>
+                    </div>
+                  </FormItem>
+                )}
+              />
+              {isMindervalide && (
+                 <FormField
+                  control={form.control}
+                  name="beperking"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Beschrijf uw beperking (optioneel)</FormLabel>
+                      <FormControl>
+                        <Textarea placeholder="Bijv. rolstoelgebruiker, slechtziend" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+               <Button type="submit" className="w-full !mt-6" disabled={isLoading}>
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Wijzigingen opslaan
               </Button>
