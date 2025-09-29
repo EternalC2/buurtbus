@@ -11,21 +11,24 @@ import { auth } from '@/lib/firebase';
 const navItems = [
   { href: '/home', label: 'Home', icon: Home, requiresAuth: false },
   { href: '/home/history', label: 'Ritten', icon: History, requiresAuth: true },
-  { href: '/home/settings', label: 'Instellingen', icon: Settings, requiresAuth: true },
+  { href: '/home/settings', label: 'Instellingen', icon: Settings, requiresAuth: false },
 ];
 
 export default function BottomNav() {
   const pathname = usePathname();
   const [user, loading] = useAuthState(auth);
 
+  const filteredNavItems = navItems.filter(item => {
+      if (item.requiresAuth && !user && !loading) {
+        return false;
+      }
+      return true;
+  });
+
   return (
     <nav className="fixed bottom-0 left-1/2 w-full max-w-md -translate-x-1/2 border-t bg-background/95 backdrop-blur-sm sm:bottom-4 sm:rounded-lg">
       <div className="flex h-16 items-center justify-around">
-        {navItems.map((item) => {
-          if (item.requiresAuth && !user && !loading) {
-            return null; // Don't render if auth is required and user is not logged in
-          }
-
+        {filteredNavItems.map((item) => {
           const isActive = pathname === item.href;
           return (
             <Link

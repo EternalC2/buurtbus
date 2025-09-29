@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import { ChevronRight, User, Bell, FileText, Shield, LogOut, CreditCard, Loader2, UserX } from "lucide-react";
+import { ChevronRight, User, Bell, FileText, Shield, LogOut, CreditCard, Loader2 } from "lucide-react";
 import Link from 'next/link';
 import {
   AlertDialog,
@@ -32,21 +32,6 @@ export default function SettingsPage() {
     );
   }
 
-  if (!user) {
-    return (
-      <div className="p-4 md:p-6 text-center">
-        <UserX className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-        <h1 className="text-2xl font-bold font-headline mb-2">Toegang vereist</h1>
-        <p className="text-muted-foreground mb-6">
-          U moet ingelogd zijn om uw instellingen te bekijken.
-        </p>
-        <Button asChild>
-          <Link href="/">Naar Inloggen</Link>
-        </Button>
-      </div>
-    );
-  }
-  
   return (
     <div className="p-4 md:p-6">
       <h1 className="text-3xl font-bold font-headline mb-6">Instellingen</h1>
@@ -55,26 +40,35 @@ export default function SettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Account & Juridisch</CardTitle>
-            <CardDescription>Beheer uw account en bekijk ons beleid.</CardDescription>
+             <CardDescription>
+              {user 
+                ? "Beheer uw account en bekijk ons beleid."
+                : "Bekijk ons beleid."
+              }
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <Link href="/home/settings/profile" className="flex w-full items-center justify-between rounded-md p-3 hover:bg-secondary">
-              <div className="flex items-center gap-3">
-                <User className="h-5 w-5 text-muted-foreground" />
-                <span>Profiel bewerken</span>
-              </div>
-              <ChevronRight className="h-5 w-5 text-muted-foreground" />
-            </Link>
-            <Separator className="my-2" />
-            
-            <Link href="/home/buurtbus-pas" className="flex w-full items-center justify-between rounded-md p-3 hover:bg-secondary">
-              <div className="flex items-center gap-3">
-                <CreditCard className="h-5 w-5 text-muted-foreground" />
-                <span>Buurtbus Pas</span>
-              </div>
-              <ChevronRight className="h-5 w-5 text-muted-foreground" />
-            </Link>
-            <Separator className="my-2" />
+            {user && (
+              <>
+                <Link href="/home/settings/profile" className="flex w-full items-center justify-between rounded-md p-3 hover:bg-secondary">
+                  <div className="flex items-center gap-3">
+                    <User className="h-5 w-5 text-muted-foreground" />
+                    <span>Profiel bewerken</span>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                </Link>
+                <Separator className="my-2" />
+                
+                <Link href="/home/buurtbus-pas" className="flex w-full items-center justify-between rounded-md p-3 hover:bg-secondary">
+                  <div className="flex items-center gap-3">
+                    <CreditCard className="h-5 w-5 text-muted-foreground" />
+                    <span>Buurtbus Pas</span>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                </Link>
+                <Separator className="my-2" />
+              </>
+            )}
 
             <AlertDialog>
               <AlertDialogTrigger asChild>
@@ -145,28 +139,32 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Notificaties</CardTitle>
-            <CardDescription>Stel uw meldingsvoorkeuren in.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between rounded-md p-3">
-              <div className="flex items-center gap-3">
-                <Bell className="h-5 w-5 text-muted-foreground" />
-                <span>Pushnotificaties</span>
-              </div>
-              <Switch defaultChecked={true} aria-label="Pushnotificaties" />
-            </div>
-          </CardContent>
-        </Card>
+        {user && (
+          <>
+            <Card>
+              <CardHeader>
+                <CardTitle>Notificaties</CardTitle>
+                <CardDescription>Stel uw meldingsvoorkeuren in.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between rounded-md p-3">
+                  <div className="flex items-center gap-3">
+                    <Bell className="h-5 w-5 text-muted-foreground" />
+                    <span>Pushnotificaties</span>
+                  </div>
+                  <Switch defaultChecked={true} aria-label="Pushnotificaties" />
+                </div>
+              </CardContent>
+            </Card>
 
-        <Button variant="outline" className="w-full" asChild>
-            <Link href="/">
-              <LogOut className="mr-2 h-4 w-4" />
-              Uitloggen
-            </Link>
-        </Button>
+            <Button variant="outline" className="w-full" asChild>
+                <Link href="/">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Uitloggen
+                </Link>
+            </Button>
+          </>
+        )}
       </div>
     </div>
   );
