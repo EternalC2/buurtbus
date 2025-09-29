@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import { ChevronRight, User, Bell, FileText, Shield, LogOut, CreditCard, Loader2 } from "lucide-react";
+import { ChevronRight, User, Bell, FileText, Shield, LogOut, CreditCard, Loader2, LogIn } from "lucide-react";
 import Link from 'next/link';
 import {
   AlertDialog,
@@ -43,7 +43,7 @@ export default function SettingsPage() {
              <CardDescription>
               {user 
                 ? "Beheer uw account en bekijk ons beleid."
-                : "Bekijk ons beleid."
+                : "U bekijkt de app als gast."
               }
             </CardDescription>
           </CardHeader>
@@ -139,7 +139,7 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        {user && (
+        {user ? (
           <>
             <Card>
               <CardHeader>
@@ -164,6 +164,13 @@ export default function SettingsPage() {
                 </Link>
             </Button>
           </>
+        ) : (
+           <Button variant="outline" className="w-full" asChild>
+              <Link href="/">
+                <LogIn className="mr-2 h-4 w-4" />
+                Inloggen / Registreren
+              </Link>
+            </Button>
         )}
       </div>
     </div>
