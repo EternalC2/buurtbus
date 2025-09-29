@@ -19,10 +19,32 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "@/lib/firebase";
+import { signOut } from "firebase/auth";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
 
 
 export default function SettingsPage() {
   const [user, loading] = useAuthState(auth);
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      toast({
+        title: "Succesvol uitgelogd",
+      });
+      router.push('/');
+    } catch (error) {
+      console.error("Error signing out: ", error);
+      toast({
+        variant: "destructive",
+        title: "Fout",
+        description: "Kon niet uitloggen. Probeer het opnieuw.",
+      });
+    }
+  };
 
   if (loading) {
     return (
@@ -157,11 +179,9 @@ export default function SettingsPage() {
               </CardContent>
             </Card>
 
-            <Button variant="outline" className="w-full" asChild>
-                <Link href="/">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Uitloggen
-                </Link>
+            <Button variant="outline" className="w-full" onClick={handleLogout}>
+              <LogOut className="mr-2 h-4 w-4" />
+              Uitloggen
             </Button>
           </>
         ) : (
@@ -176,3 +196,5 @@ export default function SettingsPage() {
     </div>
   );
 }
+
+    
