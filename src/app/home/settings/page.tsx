@@ -1,10 +1,11 @@
+
 "use client";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import { ChevronRight, User, Bell, FileText, Shield, LogOut, CreditCard } from "lucide-react";
+import { ChevronRight, User, Bell, FileText, Shield, LogOut, CreditCard, Loader2, UserX } from "lucide-react";
 import Link from 'next/link';
 import {
   AlertDialog,
@@ -16,9 +17,36 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "@/lib/firebase";
 
 
 export default function SettingsPage() {
+  const [user, loading] = useAuthState(auth);
+
+  if (loading) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center p-4">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="p-4 md:p-6 text-center">
+        <UserX className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+        <h1 className="text-2xl font-bold font-headline mb-2">Toegang vereist</h1>
+        <p className="text-muted-foreground mb-6">
+          U moet ingelogd zijn om uw instellingen te bekijken.
+        </p>
+        <Button asChild>
+          <Link href="/">Naar Inloggen</Link>
+        </Button>
+      </div>
+    );
+  }
+  
   return (
     <div className="p-4 md:p-6">
       <h1 className="text-3xl font-bold font-headline mb-6">Instellingen</h1>

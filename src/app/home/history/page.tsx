@@ -6,10 +6,12 @@ import { collection, query, where, getDocs, Timestamp } from "firebase/firestore
 import { useAuthState } from "react-firebase-hooks/auth";
 import { db, auth } from "@/lib/firebase";
 import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle, Loader2, MoreHorizontal } from "lucide-react";
+import { CheckCircle, Loader2, MoreHorizontal, UserX } from "lucide-react";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 interface Trip {
   id: string;
@@ -75,15 +77,34 @@ export default function HistoryPage() {
     }
   }, [user, userLoading]);
 
+  if (loading || userLoading) {
+    return (
+      <div className="flex justify-center items-center h-40">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!user) {
+     return (
+      <div className="p-4 md:p-6 text-center">
+        <UserX className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+        <h1 className="text-2xl font-bold font-headline mb-2">Toegang vereist</h1>
+        <p className="text-muted-foreground mb-6">
+          U moet ingelogd zijn om uw ritgeschiedenis te bekijken.
+        </p>
+        <Button asChild>
+          <Link href="/">Naar Inloggen</Link>
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 md:p-6">
       <h1 className="text-3xl font-bold font-headline mb-6">Ritgeschiedenis</h1>
       
-      {loading ? (
-        <div className="flex justify-center items-center h-40">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      ) : trips.length > 0 ? (
+      {trips.length > 0 ? (
         <div className="space-y-4">
           {trips.map((trip) => (
             <Card key={trip.id}>

@@ -214,13 +214,18 @@ export default function LoginPage() {
           </Link>
         </div>
         <Separator className="my-0" />
-        <div className="p-6 flex w-full gap-2">
-            <Button variant="outline" className="w-full" asChild>
-                <Link href="/driver">Chauffeur</Link>
+        <div className="p-6 flex flex-col w-full gap-2">
+            <Button variant="secondary" className="w-full" asChild>
+                <Link href="/home">Doorgaan als gast</Link>
             </Button>
-            <Button variant="outline" className="w-full" asChild>
-                <Link href="/admin">Beheerder</Link>
-            </Button>
+            <div className="flex w-full gap-2">
+                <Button variant="outline" className="w-full" asChild>
+                    <Link href="/driver">Chauffeur</Link>
+                </Button>
+                <Button variant="outline" className="w-full" asChild>
+                    <Link href="/admin">Beheerder</Link>
+                </Button>
+            </div>
         </div>
       </Card>
     </main>

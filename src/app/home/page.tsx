@@ -13,6 +13,18 @@ import { useToast } from "@/hooks/use-toast";
 import { estimateArrivalTime, EstimatedArrivalTimeInput } from "@/ai/ai-estimated-arrival-time";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Input } from "@/components/ui/input";
 
 type RequestState = "idle" | "requesting" | "waiting";
 
@@ -22,8 +34,31 @@ export default function HomePage() {
   const [confidence, setConfidence] = useState<number | null>(null);
   const [user, loading] = useAuthState(auth);
   const { toast } = useToast();
+  const [isGuestNameDialogOpen, setIsGuestNameDialogOpen] = useState(false);
+  const [guestName, setGuestName] = useState("");
 
   const handleRequestRide = () => {
+    if (!user) {
+      setIsGuestNameDialogOpen(true);
+      return;
+    }
+    initiateRideRequest();
+  };
+
+  const handleGuestRequest = () => {
+    if (!guestName.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Naam vereist",
+        description: "Voer alstublieft uw naam in.",
+      });
+      return;
+    }
+    setIsGuestNameDialogOpen(false);
+    initiateRideRequest();
+  };
+  
+  const initiateRideRequest = () => {
     if (!navigator.geolocation) {
       toast({
         variant: "destructive",
@@ -40,56 +75,53 @@ export default function HomePage() {
         const { latitude, longitude } = position.coords;
         const userLocation = `${latitude}, ${longitude}`;
 
-        if (!user) {
-          toast({
-            variant: "destructive",
-            title: "Niet ingelogd",
-            description: "U moet ingelogd zijn om een rit aan te vragen.",
-          });
-          setState("idle");
-          return;
-        }
-
         try {
-          // 1. Get user data from Firestore
-          const userDocRef = doc(db, "users", user.uid);
-          const userDoc = await getDoc(userDocRef);
-          
-          let userName = user.displayName || user.email || "Onbekende gebruiker";
-          let userAge = "Onbekend";
-          let isMindervalide = false;
-          let beperking = "";
-
-          if (userDoc.exists()) {
-            const userData = userDoc.data();
-            const firstName = userData.firstName;
-            const lastName = userData.lastName;
-            
-            if (firstName && lastName) {
-                userName = `${firstName} ${lastName}`;
-            } else if (firstName) {
-                userName = firstName;
-            }
-
-            userAge = userData.age || userAge;
-            isMindervalide = userData.isMindervalide || false;
-            beperking = userData.beperking || "";
-          }
-
-          // 2. Save ride request to Firestore
-          const rideRequestRef = doc(db, "rideRequests", `${user.uid}_${Date.now()}`);
-          await setDoc(rideRequestRef, {
-            userId: user.uid,
-            userName: userName,
-            userAge: userAge,
-            isMindervalide: isMindervalide,
-            beperking: beperking,
+          let rideData: any = {
             location: userLocation,
             status: "pending",
             createdAt: serverTimestamp(),
-            driverName: "Jan Jansen", // Add driver name
-            destination: "Bestemming onbekend", // Add a destination
-          });
+            destination: "Bestemming onbekend",
+          };
+
+          if (user) {
+             const userDocRef = doc(db, "users", user.uid);
+             const userDoc = await getDoc(userDocRef);
+             
+             let userName = user.displayName || user.email || "Onbekende gebruiker";
+             let userAge = "Onbekend";
+             let isMindervalide = false;
+             let beperking = "";
+
+             if (userDoc.exists()) {
+                const userData = userDoc.data();
+                userName = `${userData.firstName || ''} ${userData.lastName || ''}`.trim() || userName;
+                userAge = userData.age || userAge;
+                isMindervalide = userData.isMindervalide || false;
+                beperking = userData.beperking || "";
+             }
+             
+             rideData = {
+                ...rideData,
+                userId: user.uid,
+                userName: userName,
+                userAge: userAge,
+                isMindervalide: isMindervalide,
+                beperking: beperking,
+             };
+          } else {
+            // Guest user
+            rideData = {
+              ...rideData,
+              userId: "guest",
+              userName: guestName,
+              userAge: "Onbekend",
+              isMindervalide: false,
+            };
+          }
+
+          const requestId = user ? `${user.uid}_${Date.now()}` : `guest_${Date.now()}`;
+          const rideRequestRef = doc(db, "rideRequests", requestId);
+          await setDoc(rideRequestRef, rideData);
 
           // 3. Get ETA from AI flow
           const input: EstimatedArrivalTimeInput = {
@@ -106,6 +138,7 @@ export default function HomePage() {
           setEta(`${diffMinutes} minuten`);
           setConfidence(result.confidence);
           setState("waiting");
+          setGuestName(""); // Reset guest name
           toast({
             title: "Verzoek ontvangen!",
             description: "De chauffeur is op de hoogte gebracht.",
@@ -283,6 +316,28 @@ export default function HomePage() {
           </div>
         </div>
       )}
+      
+      <AlertDialog open={isGuestNameDialogOpen} onOpenChange={setIsGuestNameDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Doorgaan als Gast</AlertDialogTitle>
+            <AlertDialogDescription>
+              Om een rit aan te vragen als gast, hebben we uw naam nodig zodat de chauffeur u kan herkennen.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <Input 
+            type="text" 
+            placeholder="Voer uw naam in" 
+            value={guestName}
+            onChange={(e) => setGuestName(e.target.value)}
+          />
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setGuestName("")}>Annuleren</AlertDialogCancel>
+            <AlertDialogAction onClick={handleGuestRequest}>Rit Aanvragen</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
     </div>
   );
 }
