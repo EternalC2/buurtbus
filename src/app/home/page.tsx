@@ -116,6 +116,7 @@ export default function HomePage() {
               userName: guestName,
               userAge: "Onbekend",
               isMindervalide: false,
+              beperking: "",
             };
           }
 
