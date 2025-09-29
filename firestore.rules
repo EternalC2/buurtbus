@@ -1,0 +1,38 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Users can manage their own user document
+    match /users/{userId} {
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow read, update: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Rules for ride requests
+    match /rideRequests/{requestId} {
+      // Allow creation for logged-in users for themselves, OR for guest users.
+      allow create: if (request.auth != null && request.resource.data.userId == request.auth.uid) || (request.auth == null);
+
+      // A driver can read any request.
+      // A user can read their own request.
+      allow read: if request.auth != null && 
+                    (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'driver' 
+                     || resource.data.userId == request.auth.uid);
+      
+      // A driver can update any request.
+      // A user can update their own request.
+      allow update: if request.auth != null && 
+                    (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'driver' 
+                     || resource.data.userId == request.auth.uid);
+
+      // No one can delete a ride request for data integrity.
+      allow delete: if false;
+                           
+      // A logged-in user can list their own requests
+      // A driver can list all requests
+      allow list: if request.auth != null &&
+                  (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'driver'
+                   || (request.query.where.field == "userId" && request.query.where.value == request.auth.uid));
+    }
+  }
+}
