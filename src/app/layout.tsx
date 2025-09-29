@@ -5,6 +5,7 @@ import type { Metadata } from 'next';
 import { Toaster } from "@/components/ui/toaster";
 import './globals.css';
 import { useEffect, useState } from 'react';
+import { cn } from '@/lib/utils';
 
 // export const metadata: Metadata = {
 //   title: 'GGK',
@@ -16,10 +17,10 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [isClient, setIsClient] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
-    setIsClient(true)
+    setIsMounted(true)
   }, [])
 
   return (
@@ -33,7 +34,9 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased">
         <div className="relative mx-auto flex min-h-[100dvh] w-full max-w-md flex-col bg-background shadow-lg sm:my-4 sm:rounded-lg">
-          {isClient ? children : null}
+          <div className={cn(!isMounted && 'opacity-0')}>
+            {children}
+          </div>
         </div>
         <Toaster />
       </body>
