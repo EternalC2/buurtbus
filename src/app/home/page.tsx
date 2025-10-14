@@ -1,13 +1,13 @@
 
 "use client";
 
-import { useState } from "react";
-import { doc, setDoc, serverTimestamp, getDoc, updateDoc } from "firebase/firestore";
+import { useState, useEffect } from "react";
+import { doc, setDoc, serverTimestamp, getDoc, updateDoc, onSnapshot, DocumentData } from "firebase/firestore";
 import { db, auth } from "@/lib/firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Bus, User, Clock, Loader, X, MapPin, Info, CreditCard, Ticket, Loader2 } from "lucide-react";
+import { Bus, User, Clock, Loader, X, MapPin, Info, CreditCard, Ticket, Loader2, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
@@ -21,7 +21,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 
@@ -34,7 +33,46 @@ export default function HomePage() {
   const [isGuestNameDialogOpen, setIsGuestNameDialogOpen] = useState(false);
   const [guestName, setGuestName] = useState("");
   const [rideRequestId, setRideRequestId] = useState<string | null>(null);
+  const [activeRideDetails, setActiveRideDetails] = useState<DocumentData | null>(null);
   const [isCancelling, setIsCancelling] = useState(false);
+
+  useEffect(() => {
+    if (state !== 'waiting' || !rideRequestId) {
+        return;
+    }
+
+    const rideRef = doc(db, "rideRequests", rideRequestId);
+    const unsubscribe = onSnapshot(rideRef, (doc) => {
+        if (doc.exists()) {
+            const rideData = doc.data();
+            setActiveRideDetails(rideData);
+
+            // If ride is cancelled or completed by another party (e.g. driver), reset state
+            if (rideData.status === 'completed' || rideData.status === 'cancelled') {
+                setState("idle");
+                setRideRequestId(null);
+                setActiveRideDetails(null);
+                toast({ title: rideData.status === 'completed' ? "Rit voltooid!" : "Rit geannuleerd." });
+            }
+        } else {
+             // Document was likely deleted or cancelled
+            setState("idle");
+            setRideRequestId(null);
+            setActiveRideDetails(null);
+        }
+    }, (error) => {
+        console.error("Error listening to ride status:", error);
+        toast({
+            variant: "destructive",
+            title: "Verbindingsfout",
+            description: "Kon de status van de rit niet live bijwerken."
+        });
+    });
+
+    // Cleanup listener on component unmount or state change
+    return () => unsubscribe();
+  }, [state, rideRequestId, toast]);
+
 
   const handleRequestRide = () => {
     if (!user) {
@@ -76,7 +114,7 @@ export default function HomePage() {
 
         try {
           const requestId = user ? `${user.uid}_${Date.now()}` : `guest_${Date.now()}`;
-          setRideRequestId(requestId); // Save the request ID
+          setRideRequestId(requestId);
 
           let rideData: any = {
             location: userLocation,
@@ -125,6 +163,7 @@ export default function HomePage() {
           const rideRequestRef = doc(db, "rideRequests", requestId);
           await setDoc(rideRequestRef, rideData);
 
+          setActiveRideDetails(rideData); // Set initial details
           setState("waiting");
           setGuestName(""); // Reset guest name
           toast({
@@ -170,6 +209,7 @@ export default function HomePage() {
 
       setState("idle");
       setRideRequestId(null);
+      setActiveRideDetails(null);
     } catch (error) {
         console.error("Error cancelling ride:", error);
         toast({
@@ -267,11 +307,11 @@ export default function HomePage() {
         </div>
       )}
 
-      {state === "waiting" && (
+      {state === "waiting" && activeRideDetails && (
         <div className="flex h-full flex-col justify-between animate-in fade-in-50 duration-500 p-4">
           <div className="flex flex-col items-center gap-6 w-full pt-8">
             <h2 className="text-2xl font-bold text-primary font-headline">
-              Chauffeur is op de hoogte!
+              {activeRideDetails.status === 'accepted' ? 'Chauffeur is onderweg!' : 'Chauffeur is op de hoogte!'}
             </h2>
             <Card className="w-full max-w-sm text-left">
               <CardHeader>
@@ -279,7 +319,12 @@ export default function HomePage() {
                   <Bus className="h-6 w-6 text-primary" />
                   <span>Uw Rit</span>
                 </CardTitle>
-                <CardDescription>De chauffeur heeft uw verzoek ontvangen.</CardDescription>
+                <CardDescription>
+                    {activeRideDetails.status === 'accepted' 
+                        ? 'Uw rit is bevestigd. De chauffeur komt eraan.'
+                        : 'De chauffeur heeft uw verzoek ontvangen.'
+                    }
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center gap-3">
@@ -290,17 +335,26 @@ export default function HomePage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Clock className="h-5 w-5 text-muted-foreground" />
+                    {activeRideDetails.status === 'accepted' ? (
+                        <CheckCircle className="h-5 w-5 text-green-500" />
+                    ) : (
+                        <Clock className="h-5 w-5 text-muted-foreground" />
+                    )}
                   <div>
                     <p className="text-sm text-muted-foreground">Status</p>
-                    <p className="font-semibold">Wachtend op acceptatie</p>
+                    <p className={cn("font-semibold", activeRideDetails.status === 'accepted' && "text-green-600")}>
+                        {activeRideDetails.status === 'pending' && 'Wachtend op acceptatie'}
+                        {activeRideDetails.status === 'accepted' && 'Geaccepteerd'}
+                    </p>
                   </div>
                 </div>
                  <div className="flex items-center gap-3">
                   <User className="h-5 w-5 text-muted-foreground" />
                   <div>
                     <p className="text-sm text-muted-foreground">Chauffeur</p>
-                    <p className="font-semibold">Wordt toegewezen...</p>
+                    <p className="font-semibold">
+                      {activeRideDetails.driverName || 'Wordt toegewezen...'}
+                    </p>
                   </div>
                 </div>
               </CardContent>
