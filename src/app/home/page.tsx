@@ -44,6 +44,8 @@ const destinationSuggestions = [
   "Tiendeveen",
 ];
 
+const GUEST_RIDE_ID_KEY = 'buurtbus_guestRideId';
+
 export default function HomePage() {
   const [state, setState] = useState<RequestState>("idle");
   const [user, loading] = useAuthState(auth);
@@ -54,6 +56,17 @@ export default function HomePage() {
   const [rideRequestId, setRideRequestId] = useState<string | null>(null);
   const [activeRideDetails, setActiveRideDetails] = useState<DocumentData | null>(null);
   const [isCancelling, setIsCancelling] = useState(false);
+
+  // Check for guest ride ID in localStorage on initial load
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const guestRideId = localStorage.getItem(GUEST_RIDE_ID_KEY);
+      if (guestRideId) {
+        setRideRequestId(guestRideId);
+        setState("waiting");
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (state !== 'waiting' || !rideRequestId) {
@@ -66,18 +79,22 @@ export default function HomePage() {
             const rideData = doc.data();
             setActiveRideDetails(rideData);
 
-            // If ride is cancelled or completed by another party (e.g. driver), reset state
             if (rideData.status === 'completed' || rideData.status === 'cancelled') {
                 setState("idle");
                 setRideRequestId(null);
                 setActiveRideDetails(null);
+                if (typeof window !== 'undefined') {
+                  localStorage.removeItem(GUEST_RIDE_ID_KEY);
+                }
                 toast({ title: rideData.status === 'completed' ? "Rit voltooid!" : "Rit geannuleerd." });
             }
         } else {
-             // Document was likely deleted or cancelled
             setState("idle");
             setRideRequestId(null);
             setActiveRideDetails(null);
+            if (typeof window !== 'undefined') {
+              localStorage.removeItem(GUEST_RIDE_ID_KEY);
+            }
         }
     }, (error) => {
         console.error("Error listening to ride status:", error);
@@ -86,9 +103,12 @@ export default function HomePage() {
             title: "Verbindingsfout",
             description: "Kon de status van de rit niet live bijwerken."
         });
+        setState("idle");
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem(GUEST_RIDE_ID_KEY);
+        }
     });
 
-    // Cleanup listener on component unmount or state change
     return () => unsubscribe();
   }, [state, rideRequestId, toast]);
 
@@ -193,15 +213,18 @@ export default function HomePage() {
               isMindervalide: false,
               beperking: "",
             };
+            if (typeof window !== 'undefined') {
+              localStorage.setItem(GUEST_RIDE_ID_KEY, requestId);
+            }
           }
 
           const rideRequestRef = doc(db, "rideRequests", requestId);
           await setDoc(rideRequestRef, rideData);
 
-          setActiveRideDetails(rideData); // Set initial details
+          setActiveRideDetails(rideData);
           setState("waiting");
-          setGuestName(""); // Reset guest name
-          setDestination(""); // Reset destination
+          setGuestName("");
+          setDestination("");
           toast({
             title: "Verzoek ontvangen!",
             description: "De chauffeur is op de hoogte gebracht.",
@@ -246,6 +269,9 @@ export default function HomePage() {
       setState("idle");
       setRideRequestId(null);
       setActiveRideDetails(null);
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem(GUEST_RIDE_ID_KEY);
+      }
     } catch (error) {
         console.error("Error cancelling ride:", error);
         toast({
@@ -464,3 +490,4 @@ export default function HomePage() {
   );
 }
 
+    
