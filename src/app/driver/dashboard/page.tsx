@@ -160,7 +160,7 @@ export default function DriverDashboardPage() {
                             <User className="h-6 w-6 text-muted-foreground" />
                             <div>
                                 <p className="font-semibold">{activeRide.userName} {activeRide.userAge && activeRide.userAge !== 'Onbekend' ? `(${activeRide.userAge})` : ''}</p>
-                                <p className="text-sm text-muted-foreground">Bestemming: {activeRide.destination}</p>
+                                <p className="text-sm text-muted-foreground">Naar: {activeRide.destination}</p>
                             </div>
                         </div>
                          <Button asChild variant="outline" size="sm">
@@ -209,7 +209,7 @@ export default function DriverDashboardPage() {
                               <User className="h-6 w-6 text-muted-foreground" />
                               <div>
                                 <p className="font-semibold">{req.userName} {req.userAge && req.userAge !== 'Onbekend' ? `(${req.userAge})` : ''}</p>
-                                <p className="text-sm text-muted-foreground">Bestemming: {req.destination}</p>
+                                <p className="text-sm text-muted-foreground">Naar: {req.destination}</p>
                               </div>
                             </div>
                             <Button size="sm" onClick={() => handleAcceptRide(req.id)} disabled={!!activeRide}>
@@ -243,3 +243,5 @@ export default function DriverDashboardPage() {
     </div>
   );
 }
+
+    

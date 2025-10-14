@@ -23,6 +23,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 type RequestState = "idle" | "requesting" | "waiting";
 
@@ -32,6 +33,7 @@ export default function HomePage() {
   const { toast } = useToast();
   const [isGuestNameDialogOpen, setIsGuestNameDialogOpen] = useState(false);
   const [guestName, setGuestName] = useState("");
+  const [destination, setDestination] = useState("");
   const [rideRequestId, setRideRequestId] = useState<string | null>(null);
   const [activeRideDetails, setActiveRideDetails] = useState<DocumentData | null>(null);
   const [isCancelling, setIsCancelling] = useState(false);
@@ -75,6 +77,14 @@ export default function HomePage() {
 
 
   const handleRequestRide = () => {
+    if (!destination.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Bestemming vereist",
+        description: "Voer alstublieft een bestemming in.",
+      });
+      return;
+    }
     if (!user) {
       setIsGuestNameDialogOpen(true);
       return;
@@ -104,6 +114,14 @@ export default function HomePage() {
       });
       return;
     }
+     if (!destination.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Bestemming vereist",
+        description: "Voer alstublieft een bestemming in.",
+      });
+      return;
+    }
 
     setState("requesting");
 
@@ -120,7 +138,7 @@ export default function HomePage() {
             location: userLocation,
             status: "pending",
             createdAt: serverTimestamp(),
-            destination: "Bestemming onbekend",
+            destination: destination,
           };
 
           if (user) {
@@ -166,6 +184,7 @@ export default function HomePage() {
           setActiveRideDetails(rideData); // Set initial details
           setState("waiting");
           setGuestName(""); // Reset guest name
+          setDestination(""); // Reset destination
           toast({
             title: "Verzoek ontvangen!",
             description: "De chauffeur is op de hoogte gebracht.",
@@ -255,6 +274,17 @@ export default function HomePage() {
                             De buurtbus haalt u op vanaf uw huidige locatie.
                         </CardDescription>
                     </CardHeader>
+                     <CardContent>
+                      <div className="space-y-2">
+                        <Label htmlFor="destination">Bestemming</Label>
+                        <Input
+                          id="destination"
+                          placeholder="Bijv. Supermarkt, Kerk, Station"
+                          value={destination}
+                          onChange={(e) => setDestination(e.target.value)}
+                        />
+                      </div>
+                    </CardContent>
                     <CardFooter>
                         <Button size="lg" className="w-full" onClick={handleRequestRide}>
                             Roep de buurtbus op
@@ -327,11 +357,11 @@ export default function HomePage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center gap-3">
+                 <div className="flex items-center gap-3">
                   <MapPin className="h-5 w-5 text-muted-foreground" />
                   <div>
-                    <p className="text-sm text-muted-foreground">Wordt opgehaald op</p>
-                    <p className="font-semibold">Uw huidige locatie</p>
+                    <p className="text-sm text-muted-foreground">Bestemming</p>
+                    <p className="font-semibold">{activeRideDetails.destination}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -399,3 +429,5 @@ export default function HomePage() {
     </div>
   );
 }
+
+    

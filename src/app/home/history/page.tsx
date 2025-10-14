@@ -53,8 +53,8 @@ export default function HistoryPage() {
           fetchedTrips.push({
             id: doc.id,
             date: format(createdAt, "d MMMM yyyy, HH:mm", { locale: nl }),
-            from: "Huidige locatie", // Placeholder, as we only store one location
-            to: data.destination || "Bestemming onbekend",
+            from: "Huidige locatie",
+            to: data.destination || "Onbekend",
             driver: data.driverName || "Chauffeur onbekend",
             status: data.status || "Onbekend",
             createdAt: createdAt
@@ -112,7 +112,7 @@ export default function HistoryPage() {
                 <div className="flex items-center gap-4">
                    <CheckCircle className="h-6 w-6 text-green-500 flex-shrink-0 mt-1" />
                    <div>
-                    <p className="font-semibold">{trip.from} &rarr; {trip.to}</p>
+                    <p className="font-semibold">Opgehaald &rarr; {trip.to}</p>
                     <p className="text-sm text-muted-foreground">{trip.date}</p>
                     <p className="text-sm text-muted-foreground">Chauffeur: {trip.driver}</p>
                   </div>
@@ -132,3 +132,5 @@ export default function HistoryPage() {
     </div>
   );
 }
+
+    
