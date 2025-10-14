@@ -61,15 +61,22 @@ export default function HomePage() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const guestRideId = localStorage.getItem(GUEST_RIDE_ID_KEY);
-      if (guestRideId) {
+      if (guestRideId && !user) {
         setRideRequestId(guestRideId);
         setState("waiting");
+        // We set a minimal activeRideDetails for guests from localStorage
+        setActiveRideDetails({
+            status: "pending", // Assume pending
+            destination: "Uw bestemming", // We don't know the destination
+            driverName: "Wordt toegewezen..."
+        });
       }
     }
-  }, []);
+  }, [user]);
 
   useEffect(() => {
-    if (state !== 'waiting' || !rideRequestId) {
+    // This effect is only for logged-in users
+    if (state !== 'waiting' || !rideRequestId || !user) {
         return;
     }
 
@@ -89,6 +96,7 @@ export default function HomePage() {
                 toast({ title: rideData.status === 'completed' ? "Rit voltooid!" : "Rit geannuleerd." });
             }
         } else {
+            // Document was deleted or does not exist
             setState("idle");
             setRideRequestId(null);
             setActiveRideDetails(null);
@@ -110,7 +118,7 @@ export default function HomePage() {
     });
 
     return () => unsubscribe();
-  }, [state, rideRequestId, toast]);
+  }, [state, rideRequestId, toast, user]);
 
 
   const handleRequestRide = () => {
@@ -212,6 +220,7 @@ export default function HomePage() {
               userAge: "Onbekend",
               isMindervalide: false,
               beperking: "",
+              driverName: "Wordt toegewezen..."
             };
             if (typeof window !== 'undefined') {
               localStorage.setItem(GUEST_RIDE_ID_KEY, requestId);
@@ -253,11 +262,14 @@ export default function HomePage() {
   };
 
   const handleCancel = async () => {
-    if (!rideRequestId) return;
+    // The rideRequestId can come from state (for logged-in users) or localStorage (for guests)
+    const rideId = rideRequestId || (typeof window !== 'undefined' ? localStorage.getItem(GUEST_RIDE_ID_KEY) : null);
+    if (!rideId) return;
+
     setIsCancelling(true);
 
     try {
-      const rideRef = doc(db, "rideRequests", rideRequestId);
+      const rideRef = doc(db, "rideRequests", rideId);
       await updateDoc(rideRef, {
         status: "cancelled",
       });
