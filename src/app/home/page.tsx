@@ -24,8 +24,25 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 
 type RequestState = "idle" | "requesting" | "waiting";
+
+const destinationSuggestions = [
+  "Station Hoogeveen",
+  "Ziekenhuis Bethesda",
+  "Centrum",
+  "Winkelcentrum De Weide",
+  "Winkelcentrum Grote Beer",
+  "Het Drenthe College",
+  "Fluitenberg",
+  "Pesse",
+  "Noordscheschut",
+  "Hollandscheveld",
+  "Elim",
+  "Nieuwlande",
+  "Tiendeveen",
+];
 
 export default function HomePage() {
   const [state, setState] = useState<RequestState>("idle");
@@ -275,14 +292,31 @@ export default function HomePage() {
                         </CardDescription>
                     </CardHeader>
                      <CardContent>
-                      <div className="space-y-2">
-                        <Label htmlFor="destination">Bestemming</Label>
-                        <Input
-                          id="destination"
-                          placeholder="Bijv. Supermarkt, Kerk, Station"
-                          value={destination}
-                          onChange={(e) => setDestination(e.target.value)}
-                        />
+                      <div className="space-y-4">
+                        <div>
+                            <Label htmlFor="destination">Bestemming</Label>
+                            <Input
+                            id="destination"
+                            placeholder="Bijv. Supermarkt, Kerk, Station"
+                            value={destination}
+                            onChange={(e) => setDestination(e.target.value)}
+                            />
+                        </div>
+                        <div>
+                            <Label>Suggesties</Label>
+                            <div className="flex flex-wrap gap-2 pt-2">
+                                {destinationSuggestions.map((suggestion) => (
+                                    <Badge 
+                                        key={suggestion}
+                                        variant="outline"
+                                        className="cursor-pointer hover:bg-accent/50"
+                                        onClick={() => setDestination(suggestion)}
+                                    >
+                                        {suggestion}
+                                    </Badge>
+                                ))}
+                            </div>
+                        </div>
                       </div>
                     </CardContent>
                     <CardFooter>
@@ -429,5 +463,3 @@ export default function HomePage() {
     </div>
   );
 }
-
-    
