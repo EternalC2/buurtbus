@@ -57,25 +57,43 @@ export default function HomePage() {
   const [activeRideDetails, setActiveRideDetails] = useState<DocumentData | null>(null);
   const [isCancelling, setIsCancelling] = useState(false);
 
-  // Check for guest ride ID in localStorage on initial load
+  // Check for guest/user ride ID in localStorage/state on initial load
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const guestRideId = localStorage.getItem(GUEST_RIDE_ID_KEY);
-      if (guestRideId && !user) {
-        setRideRequestId(guestRideId);
-        setState("waiting");
-        // We set a minimal activeRideDetails for guests from localStorage
-        setActiveRideDetails({
-            status: "pending", // Assume pending
-            destination: "Uw bestemming", // We don't know the destination
-            driverName: "Wordt toegewezen..."
-        });
+    if (loading) return; // Wait until user auth state is loaded
+
+    let initialRideId: string | null = null;
+    let isGuest = false;
+
+    if (user) {
+      // We might need to implement logic to fetch user's ongoing ride from firestore
+      // For now, we keep it simple. If the page reloads, the state is lost for logged-in user.
+    } else {
+      // It's a guest, check localStorage
+      if (typeof window !== 'undefined') {
+        initialRideId = localStorage.getItem(GUEST_RIDE_ID_KEY);
+        isGuest = true;
       }
     }
-  }, [user]);
+    
+    if (initialRideId) {
+      setRideRequestId(initialRideId);
+      setState("waiting");
+      // Set minimal activeRideDetails from localStorage for guests
+      setActiveRideDetails({
+          status: "pending",
+          destination: "Uw bestemming",
+          driverName: "Wordt toegewezen..."
+      });
+
+      // If it's a guest, we don't start a listener due to permissions
+      if (isGuest) {
+        return;
+      }
+    }
+  }, [user, loading]);
 
   useEffect(() => {
-    // This effect is only for logged-in users
+    // This effect is only for logged-in users to get live updates
     if (state !== 'waiting' || !rideRequestId || !user) {
         return;
     }
@@ -90,9 +108,6 @@ export default function HomePage() {
                 setState("idle");
                 setRideRequestId(null);
                 setActiveRideDetails(null);
-                if (typeof window !== 'undefined') {
-                  localStorage.removeItem(GUEST_RIDE_ID_KEY);
-                }
                 toast({ title: rideData.status === 'completed' ? "Rit voltooid!" : "Rit geannuleerd." });
             }
         } else {
@@ -100,9 +115,6 @@ export default function HomePage() {
             setState("idle");
             setRideRequestId(null);
             setActiveRideDetails(null);
-            if (typeof window !== 'undefined') {
-              localStorage.removeItem(GUEST_RIDE_ID_KEY);
-            }
         }
     }, (error) => {
         console.error("Error listening to ride status:", error);
@@ -112,9 +124,6 @@ export default function HomePage() {
             description: "Kon de status van de rit niet live bijwerken."
         });
         setState("idle");
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem(GUEST_RIDE_ID_KEY);
-        }
     });
 
     return () => unsubscribe();
@@ -264,7 +273,14 @@ export default function HomePage() {
   const handleCancel = async () => {
     // The rideRequestId can come from state (for logged-in users) or localStorage (for guests)
     const rideId = rideRequestId || (typeof window !== 'undefined' ? localStorage.getItem(GUEST_RIDE_ID_KEY) : null);
-    if (!rideId) return;
+    if (!rideId) {
+        toast({
+            variant: "destructive",
+            title: "Fout",
+            description: "Kan rit ID niet vinden om te annuleren.",
+        });
+        return;
+    };
 
     setIsCancelling(true);
 
@@ -501,5 +517,3 @@ export default function HomePage() {
     </div>
   );
 }
-
-    

@@ -1,38 +1,32 @@
+
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Users can manage their own user document
+
+    // Gebruikersprofielen
     match /users/{userId} {
-      allow create: if request.auth != null && request.auth.uid == userId;
-      allow read, update: if request.auth != null && request.auth.uid == userId;
+      // Een gebruiker kan zijn eigen profiel aanmaken, lezen en bijwerken
+      allow read, update, create: if request.auth != null && request.auth.uid == userId;
     }
 
-    // Rules for ride requests
-    match /rideRequests/{requestId} {
-      // Allow creation for logged-in users for themselves, OR for guest users.
-      allow create: if (request.auth != null && request.resource.data.userId == request.auth.uid) || (request.auth == null);
+    // Ritaanvragen
+    match /rideRequests/{rideId} {
+      // Iedereen (ook gasten) mag een nieuwe ritaanvraag aanmaken.
+      allow create: if true;
 
-      // A driver can read any request.
-      // A user can read their own request.
-      allow read: if request.auth != null && 
-                    (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'driver' 
-                     || resource.data.userId == request.auth.uid);
+      // Chauffeurs en admins mogen de status bijwerken (accepteren, voltooien).
+      allow update: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['driver', 'admin'];
+
+      // Iedereen (ook gasten) mag zijn EIGEN aanvraag annuleren.
+      // We staan een update toe ALS de enige wijziging is dat de status op 'cancelled' wordt gezet.
+      allow update: if request.resource.data.status == 'cancelled' && resource.data.status != 'cancelled';
       
-      // A driver can update any request.
-      // A user can update their own request.
-      allow update: if request.auth != null && 
-                    (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'driver' 
-                     || resource.data.userId == request.auth.uid);
-
-      // No one can delete a ride request for data integrity.
-      allow delete: if false;
-                           
-      // A logged-in user can list their own requests
-      // A driver can list all requests
-      allow list: if request.auth != null &&
-                  (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'driver'
-                   || (request.query.where.field == "userId" && request.query.where.value == request.auth.uid));
+      // Een ingelogde gebruiker mag zijn eigen aanvragen lezen.
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+      
+      // Chauffeurs en admins mogen alle aanvragen lezen.
+      allow read: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['driver', 'admin'];
     }
   }
 }
