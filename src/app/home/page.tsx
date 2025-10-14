@@ -2,12 +2,12 @@
 "use client";
 
 import { useState } from "react";
-import { doc, setDoc, serverTimestamp, getDoc } from "firebase/firestore";
+import { doc, setDoc, serverTimestamp, getDoc, updateDoc } from "firebase/firestore";
 import { db, auth } from "@/lib/firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Bus, User, Clock, Loader, X, MapPin, Info, CreditCard, Ticket } from "lucide-react";
+import { Bus, User, Clock, Loader, X, MapPin, Info, CreditCard, Ticket, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
@@ -33,6 +33,8 @@ export default function HomePage() {
   const { toast } = useToast();
   const [isGuestNameDialogOpen, setIsGuestNameDialogOpen] = useState(false);
   const [guestName, setGuestName] = useState("");
+  const [rideRequestId, setRideRequestId] = useState<string | null>(null);
+  const [isCancelling, setIsCancelling] = useState(false);
 
   const handleRequestRide = () => {
     if (!user) {
@@ -73,6 +75,9 @@ export default function HomePage() {
         const userLocation = `${latitude}, ${longitude}`;
 
         try {
+          const requestId = user ? `${user.uid}_${Date.now()}` : `guest_${Date.now()}`;
+          setRideRequestId(requestId); // Save the request ID
+
           let rideData: any = {
             location: userLocation,
             status: "pending",
@@ -117,7 +122,6 @@ export default function HomePage() {
             };
           }
 
-          const requestId = user ? `${user.uid}_${Date.now()}` : `guest_${Date.now()}`;
           const rideRequestRef = doc(db, "rideRequests", requestId);
           await setDoc(rideRequestRef, rideData);
 
@@ -150,13 +154,34 @@ export default function HomePage() {
     );
   };
 
-  const handleCancel = () => {
-    // Here you would add logic to update the Firestore document to "cancelled"
-    setState("idle");
-    toast({
-      title: "Rit geannuleerd",
-    });
+  const handleCancel = async () => {
+    if (!rideRequestId) return;
+    setIsCancelling(true);
+
+    try {
+      const rideRef = doc(db, "rideRequests", rideRequestId);
+      await updateDoc(rideRef, {
+        status: "cancelled",
+      });
+
+      toast({
+        title: "Rit geannuleerd",
+      });
+
+      setState("idle");
+      setRideRequestId(null);
+    } catch (error) {
+        console.error("Error cancelling ride:", error);
+        toast({
+            variant: "destructive",
+            title: "Fout bij annuleren",
+            description: "Kon de rit niet annuleren. Probeer het opnieuw.",
+        });
+    } finally {
+        setIsCancelling(false);
+    }
   };
+
 
   if (loading) {
     return (
@@ -246,7 +271,7 @@ export default function HomePage() {
         <div className="flex h-full flex-col justify-between animate-in fade-in-50 duration-500 p-4">
           <div className="flex flex-col items-center gap-6 w-full pt-8">
             <h2 className="text-2xl font-bold text-primary font-headline">
-              Chauffeur is onderweg!
+              Chauffeur is op de hoogte!
             </h2>
             <Card className="w-full max-w-sm text-left">
               <CardHeader>
@@ -287,8 +312,9 @@ export default function HomePage() {
                 size="lg"
                 className="w-full max-w-sm mx-auto"
                 onClick={handleCancel}
+                disabled={isCancelling}
             >
-                <X className="mr-2 h-5 w-5" />
+                {isCancelling ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <X className="mr-2 h-5 w-5" />}
                 Rit Annuleren
             </Button>
           </div>
