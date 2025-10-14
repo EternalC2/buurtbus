@@ -424,11 +424,11 @@ export default function HomePage() {
               </CardContent>
             </Card>
           </div>
-          <div className="pb-4">
+          <div className="pb-4 flex justify-center">
              <Button
                 variant="destructive"
                 size="lg"
-                className="w-full max-w-sm mx-auto"
+                className="w-full max-w-sm"
                 onClick={handleCancel}
                 disabled={isCancelling}
             >
@@ -463,3 +463,4 @@ export default function HomePage() {
     </div>
   );
 }
+
