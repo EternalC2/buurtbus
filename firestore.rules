@@ -1,32 +1,9 @@
-
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Gebruikersprofielen
-    match /users/{userId} {
-      // Een gebruiker kan zijn eigen profiel aanmaken, lezen en bijwerken
-      allow read, update, create: if request.auth != null && request.auth.uid == userId;
-    }
-
-    // Ritaanvragen
-    match /rideRequests/{rideId} {
-      // Iedereen (ook gasten) mag een nieuwe ritaanvraag aanmaken.
-      allow create: if true;
-
-      // Chauffeurs en admins mogen de status bijwerken (accepteren, voltooien).
-      allow update: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['driver', 'admin'];
-
-      // Iedereen (ook gasten) mag zijn EIGEN aanvraag annuleren.
-      // We staan een update toe ALS de enige wijziging is dat de status op 'cancelled' wordt gezet.
-      allow update: if request.resource.data.status == 'cancelled' && resource.data.status != 'cancelled';
-      
-      // Een ingelogde gebruiker mag zijn eigen aanvragen lezen.
-      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
-      
-      // Chauffeurs en admins mogen alle aanvragen lezen.
-      allow read: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['driver', 'admin'];
+    // Allow all reads and writes
+    match /{document=**} {
+      allow read, write: if true;
     }
   }
 }
