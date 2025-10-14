@@ -10,7 +10,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Bus, User, Clock, Loader, X, MapPin, Info, CreditCard, Ticket } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import { estimateArrivalTime, EstimatedArrivalTimeInput } from "@/ai/ai-estimated-arrival-time";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import {
@@ -30,8 +29,6 @@ type RequestState = "idle" | "requesting" | "waiting";
 
 export default function HomePage() {
   const [state, setState] = useState<RequestState>("idle");
-  const [eta, setEta] = useState<string | null>(null);
-  const [confidence, setConfidence] = useState<number | null>(null);
   const [user, loading] = useAuthState(auth);
   const { toast } = useToast();
   const [isGuestNameDialogOpen, setIsGuestNameDialogOpen] = useState(false);
@@ -124,20 +121,6 @@ export default function HomePage() {
           const rideRequestRef = doc(db, "rideRequests", requestId);
           await setDoc(rideRequestRef, rideData);
 
-          // 3. Get ETA from AI flow
-          const input: EstimatedArrivalTimeInput = {
-            userLocation: userLocation,
-            busRoute: "Route 347", // Example value
-            timeOfRequest: new Date().toISOString(),
-            historicalData: "Gemiddelde snelheid 30km/u, 5-10 min vertraging in de spits.",
-          };
-          const result = await estimateArrivalTime(input);
-          const arrivalTime = new Date(result.estimatedArrivalTime);
-          const now = new Date();
-          const diffMinutes = Math.round((arrivalTime.getTime() - now.getTime()) / 60000);
-          
-          setEta(`${diffMinutes} minuten`);
-          setConfidence(result.confidence);
           setState("waiting");
           setGuestName(""); // Reset guest name
           toast({
@@ -150,7 +133,7 @@ export default function HomePage() {
           toast({
             variant: "destructive",
             title: "Fout bij aanvragen",
-            description: "Kon de ritaanvraag of de wachttijd niet verwerken.",
+            description: "Kon de ritaanvraag niet verwerken.",
           });
           setState("idle");
         }
@@ -170,8 +153,6 @@ export default function HomePage() {
   const handleCancel = () => {
     // Here you would add logic to update the Firestore document to "cancelled"
     setState("idle");
-    setEta(null);
-    setConfidence(null);
     toast({
       title: "Rit geannuleerd",
     });
@@ -273,6 +254,7 @@ export default function HomePage() {
                   <Bus className="h-6 w-6 text-primary" />
                   <span>Uw Rit</span>
                 </CardTitle>
+                <CardDescription>De chauffeur heeft uw verzoek ontvangen.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center gap-3">
@@ -285,20 +267,15 @@ export default function HomePage() {
                 <div className="flex items-center gap-3">
                   <Clock className="h-5 w-5 text-muted-foreground" />
                   <div>
-                    <p className="text-sm text-muted-foreground">Verwachte aankomsttijd</p>
-                    <p className="font-semibold">{eta || '...'}</p>
-                    {confidence !== null && (
-                      <p className="text-xs text-muted-foreground">
-                        Betrouwbaarheid: {Math.round(confidence * 100)}%
-                      </p>
-                    )}
+                    <p className="text-sm text-muted-foreground">Status</p>
+                    <p className="font-semibold">Wachtend op acceptatie</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
+                 <div className="flex items-center gap-3">
                   <User className="h-5 w-5 text-muted-foreground" />
                   <div>
                     <p className="text-sm text-muted-foreground">Chauffeur</p>
-                    <p className="font-semibold">Jan Jansen</p>
+                    <p className="font-semibold">Wordt toegewezen...</p>
                   </div>
                 </div>
               </CardContent>
