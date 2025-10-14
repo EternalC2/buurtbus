@@ -57,46 +57,56 @@ export default function HomePage() {
   const [activeRideDetails, setActiveRideDetails] = useState<DocumentData | null>(null);
   const [isCancelling, setIsCancelling] = useState(false);
 
-  // Check for guest/user ride ID in localStorage/state on initial load
+  // Check for guest ride ID in localStorage on initial load
   useEffect(() => {
-    if (loading) return; // Wait until user auth state is loaded
+    if (loading) return; 
 
-    let initialRideId: string | null = null;
-    let isGuest = false;
-
-    if (user) {
-      // We might need to implement logic to fetch user's ongoing ride from firestore
-      // For now, we keep it simple. If the page reloads, the state is lost for logged-in user.
-    } else {
+    if (!user) {
       // It's a guest, check localStorage
       if (typeof window !== 'undefined') {
-        initialRideId = localStorage.getItem(GUEST_RIDE_ID_KEY);
-        isGuest = true;
-      }
-    }
-    
-    if (initialRideId) {
-      setRideRequestId(initialRideId);
-      setState("waiting");
-      // Set minimal activeRideDetails from localStorage for guests
-      setActiveRideDetails({
-          status: "pending",
-          destination: "Uw bestemming",
-          driverName: "Wordt toegewezen..."
-      });
+        const guestRideId = localStorage.getItem(GUEST_RIDE_ID_KEY);
+        if (guestRideId) {
+          setRideRequestId(guestRideId);
+          setState("waiting");
+          
+          // Poll for status updates for guest
+          const rideRef = doc(db, "rideRequests", guestRideId);
+          const intervalId = setInterval(async () => {
+            try {
+              const rideDoc = await getDoc(rideRef);
+              if (rideDoc.exists()) {
+                const rideData = rideDoc.data();
+                setActiveRideDetails(rideData);
+                if (rideData.status === 'completed' || rideData.status === 'cancelled') {
+                  clearInterval(intervalId);
+                  localStorage.removeItem(GUEST_RIDE_ID_KEY);
+                  setState("idle");
+                  setRideRequestId(null);
+                  setActiveRideDetails(null);
+                }
+              } else {
+                  clearInterval(intervalId);
+                  localStorage.removeItem(GUEST_RIDE_ID_KEY);
+                  setState("idle");
+                  setRideRequestId(null);
+                  setActiveRideDetails(null);
+              }
+            } catch (error) {
+              // Could be a permissions error if rules are strict, stop polling.
+              console.error("Polling error:", error);
+              clearInterval(intervalId);
+            }
+          }, 10000); // Poll every 10 seconds
 
-      // If it's a guest, we don't start a listener due to permissions
-      if (isGuest) {
-        return;
+          return () => clearInterval(intervalId);
+        }
       }
     }
   }, [user, loading]);
 
   useEffect(() => {
-    // This effect is only for logged-in users to get live updates
-    if (state !== 'waiting' || !rideRequestId || !user) {
-        return;
-    }
+    // This effect is ONLY for LOGGED-IN users to get live updates
+    if (!user || !rideRequestId) return;
 
     const rideRef = doc(db, "rideRequests", rideRequestId);
     const unsubscribe = onSnapshot(rideRef, (doc) => {
@@ -123,11 +133,21 @@ export default function HomePage() {
             title: "Verbindingsfout",
             description: "Kon de status van de rit niet live bijwerken."
         });
-        setState("idle");
+        // Don't revert to idle, so user can still see the waiting screen and cancel
     });
 
     return () => unsubscribe();
-  }, [state, rideRequestId, toast, user]);
+  }, [user, rideRequestId, toast]);
+
+    // This effect checks for an ongoing ride for a logged-in user when the app loads
+  useEffect(() => {
+    if (loading || !user) return;
+    
+    // A simple way to find an ongoing ride is needed here.
+    // This part is complex because we don't store the current ride ID reliably for logged-in users on reload.
+    // For now, if a user reloads, they lose the waiting screen. This is a known limitation.
+
+  }, [user, loading, toast]);
 
 
   const handleRequestRide = () => {
@@ -186,8 +206,7 @@ export default function HomePage() {
 
         try {
           const requestId = user ? `${user.uid}_${Date.now()}` : `guest_${Date.now()}`;
-          setRideRequestId(requestId);
-
+          
           let rideData: any = {
             location: userLocation,
             status: "pending",
@@ -229,7 +248,6 @@ export default function HomePage() {
               userAge: "Onbekend",
               isMindervalide: false,
               beperking: "",
-              driverName: "Wordt toegewezen..."
             };
             if (typeof window !== 'undefined') {
               localStorage.setItem(GUEST_RIDE_ID_KEY, requestId);
@@ -238,11 +256,14 @@ export default function HomePage() {
 
           const rideRequestRef = doc(db, "rideRequests", requestId);
           await setDoc(rideRequestRef, rideData);
-
-          setActiveRideDetails(rideData);
+          
+          // After successful creation, update state
+          setRideRequestId(requestId);
+          setActiveRideDetails({ ...rideData, status: 'pending', driverName: 'Wordt toegewezen...' });
           setState("waiting");
           setGuestName("");
           setDestination("");
+
           toast({
             title: "Verzoek ontvangen!",
             description: "De chauffeur is op de hoogte gebracht.",
@@ -271,7 +292,6 @@ export default function HomePage() {
   };
 
   const handleCancel = async () => {
-    // The rideRequestId can come from state (for logged-in users) or localStorage (for guests)
     const rideId = rideRequestId || (typeof window !== 'undefined' ? localStorage.getItem(GUEST_RIDE_ID_KEY) : null);
     if (!rideId) {
         toast({
@@ -517,3 +537,5 @@ export default function HomePage() {
     </div>
   );
 }
+
+    
