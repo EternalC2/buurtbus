@@ -122,7 +122,7 @@ export default function LoginPage() {
     <main className="flex min-h-full flex-col items-center justify-center p-6">
       <div className="flex flex-col items-center text-center mb-8">
         <div className="bg-logo-accent rounded-full p-4 mb-4">
-          <Bus className="h-10 w-10 text-primary" />
+          <Bus className="h-10 w-10 text-[#006778]" />
         </div>
         <h1 className="text-5xl font-bold text-primary font-headline tracking-tighter">
           Buurtbus
