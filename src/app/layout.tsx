@@ -20,7 +20,12 @@ export default function RootLayout({
   const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
-    setIsMounted(true)
+    setIsMounted(true);
+    // Apply high-contrast theme if it's set in localStorage
+    const isHighContrast = localStorage.getItem('high-contrast-mode') === 'true';
+    if (isHighContrast) {
+      document.documentElement.classList.add('high-contrast');
+    }
   }, [])
 
   return (

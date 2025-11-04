@@ -1,11 +1,12 @@
 
 "use client";
 
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import { ChevronRight, User, Bell, FileText, Shield, LogOut, CreditCard, Loader2, LogIn } from "lucide-react";
+import { ChevronRight, User, Bell, FileText, Shield, LogOut, CreditCard, Loader2, LogIn, Eye } from "lucide-react";
 import Link from 'next/link';
 import {
   AlertDialog,
@@ -28,6 +29,26 @@ export default function SettingsPage() {
   const [user, loading] = useAuthState(auth);
   const router = useRouter();
   const { toast } = useToast();
+  const [isHighContrast, setIsHighContrast] = useState(false);
+
+  useEffect(() => {
+    const storedValue = localStorage.getItem('high-contrast-mode') === 'true';
+    setIsHighContrast(storedValue);
+    if (storedValue) {
+      document.documentElement.classList.add('high-contrast');
+    }
+  }, []);
+
+  const handleHighContrastToggle = (enabled: boolean) => {
+    setIsHighContrast(enabled);
+    localStorage.setItem('high-contrast-mode', String(enabled));
+    if (enabled) {
+      document.documentElement.classList.add('high-contrast');
+    } else {
+      document.documentElement.classList.remove('high-contrast');
+    }
+  };
+
 
   const handleLogout = async () => {
     try {
@@ -160,6 +181,26 @@ export default function SettingsPage() {
 
           </CardContent>
         </Card>
+        
+        <Card>
+            <CardHeader>
+                <CardTitle>Toegankelijkheid</CardTitle>
+                <CardDescription>Pas de weergave van de app aan.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <div className="flex items-center justify-between rounded-md p-3">
+                  <div className="flex items-center gap-3">
+                    <Eye className="h-5 w-5 text-muted-foreground" />
+                    <span>Hoog Contrast Modus</span>
+                  </div>
+                  <Switch
+                    checked={isHighContrast}
+                    onCheckedChange={handleHighContrastToggle}
+                    aria-label="Hoog Contrast Modus"
+                  />
+                </div>
+            </CardContent>
+        </Card>
 
         {user ? (
           <>
@@ -196,5 +237,3 @@ export default function SettingsPage() {
     </div>
   );
 }
-
-    
