@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -90,8 +91,27 @@
     font-size: 16px;
   }
   .large-text body {
-    font-size: 20px;
+    font-size: 18px;
   }
+  .large-text {
+    --font-size-xs: 1rem; /* 16px */
+    --font-size-sm: 1.125rem; /* 18px */
+    --font-size-base: 1.25rem; /* 20px */
+    --font-size-lg: 1.375rem; /* 22px */
+    --font-size-xl: 1.5rem; /* 24px */
+    --font-size-2xl: 1.75rem;
+    --font-size-3xl: 2.125rem;
+    --font-size-5xl: 3.25rem;
+  }
+
+  .large-text .text-xs { font-size: var(--font-size-xs); }
+  .large-text .text-sm { font-size: var(--font-size-sm); }
+  .large-text .text-base { font-size: var(--font-size-base); }
+  .large-text .text-lg { font-size: var(--font-size-lg); }
+  .large-text .text-xl { font-size: var(--font-size-xl); }
+  .large-text .text-2xl { font-size: var(--font-size-2xl); }
+  .large-text .text-3xl { font-size: var(--font-size-3xl); }
+  .large-text .text-5xl { font-size: var(--font-size-5xl); }
 }
 
 @layer utilities {
@@ -102,3 +122,5 @@
     animation-delay: 400ms;
   }
 }
+
+    
