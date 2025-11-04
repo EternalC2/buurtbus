@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import { ChevronRight, User, Bell, FileText, Shield, LogOut, CreditCard, Loader2, LogIn, Eye } from "lucide-react";
+import { ChevronRight, User, Bell, FileText, Shield, LogOut, CreditCard, Loader2, LogIn, Eye, Type } from "lucide-react";
 import Link from 'next/link';
 import {
   AlertDialog,
@@ -30,12 +30,19 @@ export default function SettingsPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [isHighContrast, setIsHighContrast] = useState(false);
+  const [isLargeText, setIsLargeText] = useState(false);
 
   useEffect(() => {
-    const storedValue = localStorage.getItem('high-contrast-mode') === 'true';
-    setIsHighContrast(storedValue);
-    if (storedValue) {
+    const highContrastValue = localStorage.getItem('high-contrast-mode') === 'true';
+    setIsHighContrast(highContrastValue);
+    if (highContrastValue) {
       document.documentElement.classList.add('high-contrast');
+    }
+
+    const largeTextValue = localStorage.getItem('large-text-mode') === 'true';
+    setIsLargeText(largeTextValue);
+    if (largeTextValue) {
+      document.documentElement.classList.add('large-text');
     }
   }, []);
 
@@ -46,6 +53,16 @@ export default function SettingsPage() {
       document.documentElement.classList.add('high-contrast');
     } else {
       document.documentElement.classList.remove('high-contrast');
+    }
+  };
+
+  const handleLargeTextToggle = (enabled: boolean) => {
+    setIsLargeText(enabled);
+    localStorage.setItem('large-text-mode', String(enabled));
+    if (enabled) {
+      document.documentElement.classList.add('large-text');
+    } else {
+      document.documentElement.classList.remove('large-text');
     }
   };
 
@@ -197,6 +214,18 @@ export default function SettingsPage() {
                     checked={isHighContrast}
                     onCheckedChange={handleHighContrastToggle}
                     aria-label="Hoog Contrast Modus"
+                  />
+                </div>
+                <Separator className="my-1" />
+                <div className="flex items-center justify-between rounded-md p-3">
+                  <div className="flex items-center gap-3">
+                    <Type className="h-5 w-5 text-muted-foreground" />
+                    <span>Grotere letters</span>
+                  </div>
+                  <Switch
+                    checked={isLargeText}
+                    onCheckedChange={handleLargeTextToggle}
+                    aria-label="Grotere letters"
                   />
                 </div>
             </CardContent>

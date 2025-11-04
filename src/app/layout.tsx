@@ -26,6 +26,11 @@ export default function RootLayout({
     if (isHighContrast) {
       document.documentElement.classList.add('high-contrast');
     }
+
+    const isLargeText = localStorage.getItem('large-text-mode') === 'true';
+    if (isLargeText) {
+      document.documentElement.classList.add('large-text');
+    }
   }, [])
 
   return (
